@@ -1,0 +1,35 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<l:layout norefresh="true">
+		<l:main-panel>
+			<f:form method="post" action="submit">
+				
+				<f:section title="Unleash Your Artifacts!">
+				  <f:optionalBlock name="useGlobalVersion" title="Specify a global version for all modules" checked="${it.isUseGlobalVersion()}">
+            <f:entry title="Release Version">
+              <f:textbox name="releaseVersion" value="${it.computeReleaseVersion()}" />
+            </f:entry>
+            <f:entry title="Development version">
+              <f:textbox name="developmentVersion" value="${it.computeNextDevelopmentVersion()}" />
+            </f:entry>
+          </f:optionalBlock>
+					
+					<f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}">
+            <f:entry title="Username">
+              <f:textbox name="scmUsername" value="" />
+            </f:entry>
+            <f:entry title="Password">
+              <f:password name="scmPassword" value="" />
+            </f:entry>
+          </f:optionalBlock>
+				</f:section>
+				
+				<tr>
+				  <td colspan="4" align="right">
+				    <f:submit value="${%Schedule Maven Release Build}"/>
+				  </td>
+				</tr>
+			
+			</f:form>
+		</l:main-panel>
+	</l:layout>
+</j:jelly>

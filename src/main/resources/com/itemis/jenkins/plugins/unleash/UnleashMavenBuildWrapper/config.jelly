@@ -1,0 +1,20 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:entry title="Goals and Options">
+    <f:textbox field="goals" value="${h.defaulted(instance.goals,descriptor.DEFAULT_GOALS)}"/>
+  </f:entry>
+  <f:entry title="Use Log Timestamps">
+    <f:checkbox field="useLogTimestamps" value="${h.defaulted(instance.useLogTimestamps,descriptor.DEFAULT_USE_LOG_TIMESTAMPS)}"/>
+  </f:entry>
+  <f:entry title="Preselect 'Specify a global version for all modules'">
+    <f:checkbox name="preselectUseGlobalVersion" checked="${h.defaulted(instance.preselectUseGlobalVersion,descriptor.DEFAULT_PRESELECT_USE_GLOBAL_VERSION)}"/>
+  </f:entry>
+  <f:entry title="Preselect 'Use custom SCM credentials'">
+    <f:checkbox name="preselectUseCustomScmCredentials" checked="${h.defaulted(instance.preselectUseCustomScmCredentials,descriptor.DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS)}"/>
+  </f:entry>
+  <f:advanced>
+    <f:entry title="Tag Name Pattern">
+      <f:textbox field="tagNamePattern" value="${h.defaulted(instance.tagNamePattern,descriptor.DEFAULT_TAG_NAME_PATTERN)}"/>
+    </f:entry>
+  </f:advanced>
+</j:jelly>
