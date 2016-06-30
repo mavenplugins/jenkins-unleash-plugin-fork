@@ -1,19 +1,43 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<l:layout norefresh="true">
-		<l:main-panel>
-			<f:form method="post" action="submit">
-				
-				<f:section title="Unleash Your Artifacts!">
-				  <f:optionalBlock name="useGlobalVersion" title="Specify a global version for all modules" checked="${it.isUseGlobalVersion()}">
+  <l:layout norefresh="true">
+    <l:main-panel>
+
+      <f:form method="post" action="submit">
+
+        <f:section title="Versioning">
+          <f:radioBlock name="useGlobalVersion" checked="${it.isUseGlobalVersion()}" title="Specify A Global Version For All Modules" value="true" help="/plugin/unleash/help-actionUnleash-globalVersion.html">
             <f:entry title="Release Version">
               <f:textbox name="releaseVersion" value="${it.computeReleaseVersion()}" />
             </f:entry>
-            <f:entry title="Development version">
+            <f:entry title="Development Version">
               <f:textbox name="developmentVersion" value="${it.computeNextDevelopmentVersion()}" />
             </f:entry>
-          </f:optionalBlock>
-					
-					<f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}">
+          </f:radioBlock>
+          <f:radioBlock name="useGlobalVersion" checked="${it.isNotUseGlobalVersion()}" title="Use automatic version calculation for each module"
+            value="false" help="/plugin/unleash/help-actionUnleash-autoVersion.html">
+            <f:block>
+              <table class="sortable pane bigtable stripped-odd">
+                <tbody>
+                  <tr class="header">
+                    <th width="33%">Module</th>
+                    <th width="33%">Release Version</th>
+                    <th width="33%">Development Version</th>
+                  </tr>
+                  <j:forEach var="module" items="${it.getAllMavenModules()}">
+                    <tr align="center">
+                      <td>${module.getDisplayName()}</td>
+                      <td>${it.computeReleaseVersion(module)}</td>
+                      <td>${it.computeNextDevelopmentVersion(module)}</td>
+                    </tr>
+                  </j:forEach>
+                </tbody>
+              </table>
+            </f:block>
+          </f:radioBlock>
+        </f:section>
+
+        <f:section title="SCM Credentials">
+          <f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}" help="/plugin/unleash/help-actionUnleash-scmCredentials.html">
             <f:entry title="Username">
               <f:textbox name="scmUsername" value="" />
             </f:entry>
@@ -21,15 +45,23 @@
               <f:password name="scmPassword" value="" />
             </f:entry>
           </f:optionalBlock>
-				</f:section>
-				
-				<tr>
-				  <td colspan="4" align="right">
-				    <f:submit value="${%Schedule Maven Release Build}"/>
-				  </td>
-				</tr>
-			
-			</f:form>
-		</l:main-panel>
-	</l:layout>
+        </f:section>
+
+        <f:section title="Advanced">
+          <f:entry title="Allow Local Release Artifacts" help="/plugin/unleash/help-actionUnleash-localReleaseArtifacts.html">
+            <f:checkbox name="allowLocalReleaseArtifacts" checked="${it.isAllowLocalReleaseArtifacts()}" />
+          </f:entry>
+          <f:entry title="Commit Before Tagging" help="/plugin/unleash/help-actionUnleash-commitBeforeTagging.html">
+            <f:checkbox name="commitBeforeTagging" checked="${it.isCommitBeforeTagging()}" />
+          </f:entry>
+        </f:section>
+
+        <tr>
+          <td colspan="4" align="right">
+            <f:submit value="${%Schedule Maven Release Build}" />
+          </td>
+        </tr>
+      </f:form>
+    </l:main-panel>
+  </l:layout>
 </j:jelly>

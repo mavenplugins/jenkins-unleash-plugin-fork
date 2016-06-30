@@ -9,6 +9,9 @@ public class UnleashArgumentsAction implements Action {
   private String globalDevelopmentVersion;
   private String scmUsername;
   private String scmPassword;
+  private boolean useGlobalReleaseVersion;
+  private boolean allowLocalReleaseArtifacts;
+  private boolean commitBeforeTagging;
 
   @Override
   public String getIconFileName() {
@@ -25,16 +28,24 @@ public class UnleashArgumentsAction implements Action {
     return null;
   }
 
-  public Optional<String> getGlobalReleaseVersion() {
-    return Optional.fromNullable(this.globalReleaseVersion);
+  public void setUseGlobalReleaseVersion(boolean useGlobalReleaseVersion) {
+    this.useGlobalReleaseVersion = useGlobalReleaseVersion;
+  }
+
+  public boolean useGlobalReleaseVersion() {
+    return this.useGlobalReleaseVersion;
+  }
+
+  public String getGlobalReleaseVersion() {
+    return this.globalReleaseVersion;
   }
 
   public void setGlobalReleaseVersion(String globalReleaseVersion) {
     this.globalReleaseVersion = globalReleaseVersion;
   }
 
-  public Optional<String> getGlobalDevelopmentVersion() {
-    return Optional.fromNullable(this.globalDevelopmentVersion);
+  public String getGlobalDevelopmentVersion() {
+    return this.globalDevelopmentVersion;
   }
 
   public void setGlobalDevelopmentVersion(String globalDevelopmentVersion) {
@@ -55,5 +66,21 @@ public class UnleashArgumentsAction implements Action {
 
   public void setScmPassword(String scmPassword) {
     this.scmPassword = scmPassword;
+  }
+
+  public boolean allowLocalReleaseArtifacts() {
+    return this.allowLocalReleaseArtifacts;
+  }
+
+  public void setAllowLocalReleaseArtifacts(boolean allowLocalReleaseArtifacts) {
+    this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
+  }
+
+  public boolean commitBeforeTagging() {
+    return this.commitBeforeTagging;
+  }
+
+  public void setCommitBeforeTagging(boolean commitBeforeTagging) {
+    this.commitBeforeTagging = commitBeforeTagging;
   }
 }

@@ -25,11 +25,16 @@ public class UnleashAction implements PermalinkProjectAction {
   private MavenModuleSet project;
   private boolean useCustomScmCredentials;
   private boolean useGlobalVersion;
+  private boolean allowLocalReleaseArtifacts;
+  private boolean commitBeforeTagging;
 
-  public UnleashAction(MavenModuleSet project, boolean useCustomScmCredentials, boolean useGlobalVersion) {
+  public UnleashAction(MavenModuleSet project, boolean useCustomScmCredentials, boolean useGlobalVersion,
+      boolean allowLocalReleaseArtifacts, boolean commitBeforeTagging) {
     this.project = project;
     this.useCustomScmCredentials = useCustomScmCredentials;
     this.useGlobalVersion = useGlobalVersion;
+    this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
+    this.commitBeforeTagging = commitBeforeTagging;
   }
 
   @Override
@@ -61,11 +66,27 @@ public class UnleashAction implements PermalinkProjectAction {
     return version;
   }
 
+  public String computeReleaseVersion(MavenModule module) {
+    String version = "NaN";
+    if (module != null && StringUtils.isNotBlank(module.getVersion())) {
+      version = MavenVersionUtil.calculateReleaseVersion(module.getVersion());
+    }
+    return version;
+  }
+
   public String computeNextDevelopmentVersion() {
     String version = "NaN";
     final MavenModule rootModule = this.project.getRootModule();
     if (rootModule != null && StringUtils.isNotBlank(rootModule.getVersion())) {
       version = MavenVersionUtil.calculateNextSnapshotVersion(rootModule.getVersion());
+    }
+    return version;
+  }
+
+  public String computeNextDevelopmentVersion(MavenModule module) {
+    String version = "NaN";
+    if (module != null && StringUtils.isNotBlank(module.getVersion())) {
+      version = MavenVersionUtil.calculateNextSnapshotVersion(module.getVersion());
     }
     return version;
   }
@@ -82,8 +103,34 @@ public class UnleashAction implements PermalinkProjectAction {
     return this.useGlobalVersion;
   }
 
+  public boolean isNotUseGlobalVersion() {
+    return !this.useGlobalVersion;
+  }
+
   public void setUseGlobalVersion(boolean useGlobalVersion) {
     this.useGlobalVersion = useGlobalVersion;
+  }
+
+  public boolean isAllowLocalReleaseArtifacts() {
+    return this.allowLocalReleaseArtifacts;
+  }
+
+  public void setAllowLocalReleaseArtifacts(boolean allowLocalReleaseArtifacts) {
+    this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
+  }
+
+  public boolean isCommitBeforeTagging() {
+    return this.commitBeforeTagging;
+  }
+
+  public void setCommitBeforeTagging(boolean commitBeforeTagging) {
+    this.commitBeforeTagging = commitBeforeTagging;
+  }
+
+  public List<MavenModule> getAllMavenModules() {
+    List<MavenModule> modules = Lists.newArrayList();
+    modules.addAll(this.project.getModules());
+    return modules;
   }
 
   public void doSubmit(StaplerRequest req, StaplerResponse resp) throws IOException, ServletException {
@@ -94,15 +141,24 @@ public class UnleashAction implements PermalinkProjectAction {
 
     UnleashArgumentsAction arguments = new UnleashArgumentsAction();
     boolean globalVersions = requestWrapper.getBoolean("useGlobalVersion");
+
+    arguments.setUseGlobalReleaseVersion(globalVersions);
     if (globalVersions) {
       arguments.setGlobalReleaseVersion(requestWrapper.getString("releaseVersion"));
       arguments.setGlobalDevelopmentVersion(requestWrapper.getString("developmentVersion"));
+    } else {
+      arguments.setGlobalReleaseVersion(computeReleaseVersion());
+      arguments.setGlobalDevelopmentVersion(computeNextDevelopmentVersion());
     }
+
     boolean customCredentials = requestWrapper.getBoolean("setScmCredentials");
     if (customCredentials) {
       arguments.setScmUsername(requestWrapper.getString("scmUsername"));
       arguments.setScmPassword(requestWrapper.getString("scmPassword"));
     }
+
+    arguments.setAllowLocalReleaseArtifacts(requestWrapper.getBoolean("allowLocalReleaseArtifacts"));
+    arguments.setCommitBeforeTagging(requestWrapper.getBoolean("commitBeforeTagging"));
 
     if (this.project.scheduleBuild(0, new UnleashCause(), arguments)) {
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl());

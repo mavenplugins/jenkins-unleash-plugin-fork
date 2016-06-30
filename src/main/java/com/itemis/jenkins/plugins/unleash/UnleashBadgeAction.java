@@ -47,25 +47,24 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     return str.toString();
   }
 
-  public boolean isFailedBuild() {
-    return !isSuccessfulBuild(this.run);
+  public boolean isSuccessfulBuild() {
+    return this.run.getResult() != null ? this.run.getResult().isBetterOrEqualTo(Result.SUCCESS) : false;
   }
 
-  private boolean isSuccessfulBuild(Run<?, ?> run) {
-    Result result = run.getResult();
-    if (result != null) {
-      return result.isBetterOrEqualTo(Result.SUCCESS);
-    } else { // build is not yet initiated
-      return true;
-    }
+  public boolean isFailedBuild() {
+    return this.run.getResult() != null ? this.run.getResult().isWorseOrEqualTo(Result.FAILURE) : false;
+  }
+
+  public boolean isBuilding() {
+    return this.run.isBuilding();
   }
 
   public String getVersionNumber() {
     UnleashArgumentsAction args = this.run.getAction(UnleashArgumentsAction.class);
     if (args != null) {
-      return args.getGlobalReleaseVersion().or("Unknown Version");
+      return args.getGlobalReleaseVersion();
     } else { // builds by old versions of the plugin
-      return null;
+      return "Unknown Version";
     }
   }
 }

@@ -1,10 +1,10 @@
 <j:jelly xmlns:j="jelly:core">
     <j:choose>
-        <j:when test="${it.isFailedBuild()}">
+        <j:if test="${it.isSuccessfulBuild()}">
+            <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-success.png"/>
+        </j:if>
+        <j:if test="${it.isFailedBuild()}">
             <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-failure.png"/>
-        </j:when>
-        <j:otherwise>
-            <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge.png"/>
-        </j:otherwise>
+        </j:if>
     </j:choose>
 </j:jelly>

@@ -1,20 +1,56 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <f:entry title="Goals and Options">
-    <f:textbox field="goals" value="${h.defaulted(instance.goals,descriptor.DEFAULT_GOALS)}"/>
+  <f:entry title="Goals" help="/plugin/unleash/help-projectConfig-releaseGoals.html">
+    <f:textbox field="goals" value="${instance.goals}" default="${descriptor.DEFAULT_GOALS}" />
   </f:entry>
-  <f:entry title="Use Log Timestamps">
-    <f:checkbox field="useLogTimestamps" value="${h.defaulted(instance.useLogTimestamps,descriptor.DEFAULT_USE_LOG_TIMESTAMPS)}"/>
+  <f:entry title="Profiles" help="/plugin/unleash/help-projectConfig-releaseProfiles.html">
+    <f:textbox field="profiles" value="${instance.profiles}" default="${descriptor.DEFAULT_PROFILES}" />
   </f:entry>
-  <f:entry title="Preselect 'Specify a global version for all modules'">
-    <f:checkbox name="preselectUseGlobalVersion" checked="${h.defaulted(instance.preselectUseGlobalVersion,descriptor.DEFAULT_PRESELECT_USE_GLOBAL_VERSION)}"/>
+  <f:entry title="Additional Release Arguments" help="/plugin/unleash/help-projectConfig-releaseArgs.html">
+    <f:textbox field="releaseArgs" value="${instance.releaseArgs}" default="${descriptor.DEFAULT_RELEASE_ARGS}" />
   </f:entry>
-  <f:entry title="Preselect 'Use custom SCM credentials'">
-    <f:checkbox name="preselectUseCustomScmCredentials" checked="${h.defaulted(instance.preselectUseCustomScmCredentials,descriptor.DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS)}"/>
+  <f:entry title="Hook Data" help="/plugin/unleash/help-projectConfig-hook.html">
+    <f:repeatable var="hooks" items="${instance.hooks}">
+      <table>
+        <f:entry title="Name" help="/plugin/unleash/help-projectConfig-hookName.html">
+          <f:textbox name="hook.name" value="${hooks.name}" />
+        </f:entry>
+        <f:entry title="Data" help="/plugin/unleash/help-projectConfig-hookData.html">
+          <f:expandableTextbox name="hook.data" value="${hooks.data}" />
+        </f:entry>
+        <f:entry title="Rollback Data" help="/plugin/unleash/help-projectConfig-hookRollbackData.html">
+          <f:expandableTextbox name="hook.rollbackData" value="${hooks.rollbackData}" />
+        </f:entry>
+        <f:entry title="">
+          <div align="right">
+            <f:repeatableDeleteButton />
+          </div>
+        </f:entry>
+      </table>
+    </f:repeatable>
   </f:entry>
+
   <f:advanced>
-    <f:entry title="Tag Name Pattern">
-      <f:textbox field="tagNamePattern" value="${h.defaulted(instance.tagNamePattern,descriptor.DEFAULT_TAG_NAME_PATTERN)}"/>
+    <f:entry title="Use Log Timestamps" help="/plugin/unleash/help-projectConfig-logTimestamps.html">
+      <f:checkbox field="useLogTimestamps" value="${instance.useLogTimestamps}" default="${descriptor.useLogTimestamps}" />
+    </f:entry>
+    <f:entry title="Preselect 'Specify A Global Version For All Modules'" help="/plugin/unleash/help-projectConfig-globalVersion.html">
+      <f:checkbox name="preselectUseGlobalVersion" checked="${instance.preselectUseGlobalVersion}" default="${descriptor.DEFAULT_PRESELECT_USE_GLOBAL_VERSION}" />
+    </f:entry>
+    <f:entry title="Preselect 'Use custom SCM credentials'" help="/plugin/unleash/help-projectConfig-scmCredentials.html">
+      <f:checkbox name="preselectUseCustomScmCredentials" checked="${instance.preselectUseCustomScmCredentials}" default="${descriptor.DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS}" />
+    </f:entry>
+    <f:entry title="Preselect 'Allow Local Release Artifacts'" help="/plugin/unleash/help-projectConfig-localReleaseArtifacts.html">
+      <f:checkbox field="preselectAllowLocalReleaseArtifacts" value="${instance.preselectAllowLocalReleaseArtifacts}" default="${descriptor.preselectAllowLocalReleaseArtifacts}" />
+    </f:entry>
+    <f:entry title="Preselect 'Commit Before Tagging'" help="/plugin/unleash/help-projectConfig-commitBeforeTagging.html">
+      <f:checkbox field="preselectCommitBeforeTagging" value="${instance.preselectCommitBeforeTagging}" default="${descriptor.preselectCommitBeforeTagging}" />
+    </f:entry>
+    <f:entry title="Tag Name Pattern" help="/plugin/unleash/help-projectConfig-tagNamePattern.html">
+      <f:textbox field="tagNamePattern" value="${instance.tagNamePattern}" default="${descriptor.tagNamePattern}" />
+    </f:entry>
+    <f:entry title="SCM Message Prefix" help="/plugin/unleash/help-projectConfig-scmMessagePrefix.html">
+      <f:textbox field="scmMessagePrefix" value="${instance.scmMessagePrefix}" default="${descriptor.scmMessagePrefix}" />
     </f:entry>
   </f:advanced>
 </j:jelly>

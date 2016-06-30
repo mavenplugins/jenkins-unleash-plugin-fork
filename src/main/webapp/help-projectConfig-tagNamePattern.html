@@ -1,0 +1,14 @@
+<div>
+  Specify a pattern for names of the tags that are created during the release build.<br><br>
+  <b>Variable expansion</b><br>
+  It is also possible to use a limited set of variables that will be expanded during tag name calculation.<br>
+  Variables are referenced with <tt>@{VAR_NAME}</tt>.<br>
+  The current implementation provides the following variables that can be used (but this is subject to change):
+  <tt>
+    <ul>
+      <li>@{project.groupId}</li>
+      <li>@{project.artifactId}</li>
+      <li>@{project.version}</li>
+    </ul>
+  </tt>
+</div>
