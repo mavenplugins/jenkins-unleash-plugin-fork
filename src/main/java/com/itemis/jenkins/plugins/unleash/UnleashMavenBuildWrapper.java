@@ -29,7 +29,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private String goals = DescriptorImpl.DEFAULT_GOALS;
   private String profiles = DescriptorImpl.DEFAULT_PROFILES;
   private String releaseArgs = DescriptorImpl.DEFAULT_RELEASE_ARGS;
-  private List<HookDescriptor> hooks = DescriptorImpl.DEFAULT_HOOKS;
+  private List<HookDescriptor> hooks = Lists.newArrayList();
   private boolean useLogTimestamps = DescriptorImpl.DEFAULT_USE_LOG_TIMESTAMPS;
   private String tagNamePattern = DescriptorImpl.DEFAULT_TAG_NAME_PATTERN;
   private String scmMessagePrefix = DescriptorImpl.DEFAULT_SCM_MESSAGE_PREFIX;
@@ -250,7 +250,6 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final String DEFAULT_GOALS = "unleash:perform";
     public static final String DEFAULT_PROFILES = "";
     public static final String DEFAULT_RELEASE_ARGS = "";
-    public static final List<HookDescriptor> DEFAULT_HOOKS = Lists.newArrayList();
     public static final boolean DEFAULT_USE_LOG_TIMESTAMPS = true;
     public static final String DEFAULT_TAG_NAME_PATTERN = "@{project.version}";
     public static final String DEFAULT_SCM_MESSAGE_PREFIX = "[unleash-maven-plugin]";

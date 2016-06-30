@@ -41,9 +41,8 @@ public class UnleashArgumentInterceptorAction implements MavenArgumentIntercepto
 
   @Override
   public ArgumentListBuilder intercept(ArgumentListBuilder mavenargs, MavenModuleSetBuild build) {
-    ArgumentListBuilder returnListBuilder = new ArgumentListBuilder();
+    ArgumentListBuilder returnListBuilder;
     List<String> argumentList = mavenargs.toList();
-
     if (build.getProject().isIncrementalBuild() && containsJenkinsIncrementalBuildArguments(argumentList)) {
       LOGGER.config(
           "This Maven build seems to be configured as 'Incremental build'. This will be disabled, as always the full project will be released");

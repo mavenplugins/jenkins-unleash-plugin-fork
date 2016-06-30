@@ -48,11 +48,23 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
   }
 
   public boolean isSuccessfulBuild() {
-    return this.run.getResult() != null ? this.run.getResult().isBetterOrEqualTo(Result.SUCCESS) : false;
+    if (this.run != null) {
+      Result result = this.run.getResult();
+      if (result != null) {
+        return result.isBetterOrEqualTo(Result.SUCCESS);
+      }
+    }
+    return false;
   }
 
   public boolean isFailedBuild() {
-    return this.run.getResult() != null ? this.run.getResult().isWorseOrEqualTo(Result.FAILURE) : false;
+    if (this.run != null) {
+      Result result = this.run.getResult();
+      if (result != null) {
+        return result.isWorseOrEqualTo(Result.FAILURE);
+      }
+    }
+    return false;
   }
 
   public boolean isBuilding() {
