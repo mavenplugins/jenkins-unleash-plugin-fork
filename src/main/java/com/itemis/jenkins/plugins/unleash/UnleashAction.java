@@ -18,6 +18,7 @@ import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.PermalinkProjectAction;
+import hudson.model.PermalinkProjectAction.Permalink;
 
 public class UnleashAction implements PermalinkProjectAction {
   private static final Logger LOGGER = Logger.getLogger(UnleashAction.class.getName());
@@ -134,9 +135,6 @@ public class UnleashAction implements PermalinkProjectAction {
   }
 
   public void doSubmit(StaplerRequest req, StaplerResponse resp) throws IOException, ServletException {
-    // JSON collapses everything in the dynamic specifyVersions section so
-    // we need to fall back to
-    // good old http...
     RequestWrapper requestWrapper = new RequestWrapper(req);
 
     UnleashArgumentsAction arguments = new UnleashArgumentsAction();
@@ -163,49 +161,15 @@ public class UnleashAction implements PermalinkProjectAction {
     if (this.project.scheduleBuild(0, new UnleashCause(), arguments)) {
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl());
     } else {
-      // redirect to error page.
-      // TODO try and get this to go back to the form page with an
-      // error at the top.
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl() + '/' + getUrlName() + "/failed");
     }
   }
 
-  /**
-   * Wrapper to access request data with a special treatment if POST is multipart encoded
-   */
   static class RequestWrapper {
     private final StaplerRequest request;
-    // private Map<String, FileItem> parsedFormData;
-    // private boolean isMultipartEncoded;
 
     public RequestWrapper(StaplerRequest request) throws ServletException {
       this.request = request;
-      //
-      // // JENKINS-16043, POST can be multipart encoded if there's a file parameter in the job
-      // String ct = request.getContentType();
-      // if (ct != null && ct.startsWith("multipart/")) {
-      // // as multipart content can only be read once, we can't read it here, otherwise it would
-      // // break request.getSubmittedForm(). So, we get it using reflection by reading private
-      // // field parsedFormData
-      //
-      // // ensure parsedFormData field is filled
-      // request.getSubmittedForm();
-      //
-      // try {
-      // java.lang.reflect.Field privateField = org.kohsuke.stapler.RequestImpl.class
-      // .getDeclaredField("parsedFormData");
-      // privateField.setAccessible(true);
-      // this.parsedFormData = (Map<String, FileItem>) privateField.get(request);
-      // } catch (NoSuchFieldException e) {
-      // throw new IllegalArgumentException(e);
-      // } catch (IllegalAccessException e) {
-      // throw new IllegalArgumentException(e);
-      // }
-      //
-      // this.isMultipartEncoded = true;
-      // } else {
-      // this.isMultipartEncoded = false;
-      // }
     }
 
     private String getString(String key) throws javax.servlet.ServletException, java.io.IOException {
@@ -222,28 +186,6 @@ public class UnleashAction implements PermalinkProjectAction {
         }
       }
       return null;
-      // if (this.isMultipartEncoded) {
-      // // borrowed from org.kohsuke.staple.RequestImpl
-      // FileItem item = this.parsedFormData.get(key);
-      // if (item != null && item.isFormField()) {
-      // if (item.getContentType() == null && this.request.getCharacterEncoding() != null) {
-      // // JENKINS-11543: If client doesn't set charset per part, use request encoding
-      // try {
-      // return item.getString(this.request.getCharacterEncoding());
-      // } catch (java.io.UnsupportedEncodingException uee) {
-      // LOGGER.log(Level.WARNING, "Request has unsupported charset, using default for '" + key + "' parameter",
-      // uee);
-      // return item.getString();
-      // }
-      // } else {
-      // return item.getString();
-      // }
-      // } else {
-      // throw new IllegalArgumentException("Parameter not found: " + key);
-      // }
-      // } else {
-      // return (String) ((Object[]) this.request.getParameterMap().get(key))[0];
-      // }
     }
 
     private boolean getBoolean(String key) {
@@ -261,22 +203,7 @@ public class UnleashAction implements PermalinkProjectAction {
           }
         }
       }
-      return Objects.equal("on", flag);
+      return Objects.equal("true", flag) || Objects.equal("on", flag);
     }
-
-    // /**
-    // * returns true if request contains key
-    // *
-    // * @param key parameter name
-    // * @return
-    // */
-    // private boolean containsKey(String key) throws javax.servlet.ServletException, java.io.IOException {
-    // // JENKINS-16043, POST can be multipart encoded if there's a file parameter in the job
-    // if (this.isMultipartEncoded) {
-    // return this.parsedFormData.containsKey(key);
-    // } else {
-    // return this.request.getParameterMap().containsKey(key);
-    // }
-    // }
   }
 }

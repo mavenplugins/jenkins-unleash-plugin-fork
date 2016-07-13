@@ -5,7 +5,8 @@
       <f:form method="post" action="submit">
 
         <f:section title="Versioning">
-          <f:radioBlock name="useGlobalVersion" checked="${it.isUseGlobalVersion()}" title="Specify A Global Version For All Modules" value="true" help="/plugin/unleash/help-actionUnleash-globalVersion.html">
+          <f:radioBlock name="useGlobalVersion" checked="${it.isUseGlobalVersion()}" title="Specify A Global Version For All Modules" value="true"
+            help="/plugin/unleash/help-actionUnleash-globalVersion.html">
             <f:entry title="Release Version">
               <f:textbox name="releaseVersion" value="${it.computeReleaseVersion()}" />
             </f:entry>
@@ -37,22 +38,23 @@
         </f:section>
 
         <f:section title="SCM Credentials">
-          <f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}" help="/plugin/unleash/help-actionUnleash-scmCredentials.html">
+          <f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}"
+            help="/plugin/unleash/help-actionUnleash-scmCredentials.html">
             <f:entry title="Username">
-              <f:textbox name="scmUsername" value="" />
+              <f:textbox name="scmUsername" />
             </f:entry>
             <f:entry title="Password">
-              <f:password name="scmPassword" value="" />
+              <f:password name="scmPassword" />
             </f:entry>
           </f:optionalBlock>
         </f:section>
 
         <f:section title="Advanced">
           <f:entry title="Allow Local Release Artifacts" help="/plugin/unleash/help-actionUnleash-localReleaseArtifacts.html">
-            <f:checkbox name="allowLocalReleaseArtifacts" checked="${it.isAllowLocalReleaseArtifacts()}" />
+            <f:checkbox field="allowLocalReleaseArtifacts" name="allowLocalReleaseArtifacts" checked="${it.isAllowLocalReleaseArtifacts()}"/>
           </f:entry>
           <f:entry title="Commit Before Tagging" help="/plugin/unleash/help-actionUnleash-commitBeforeTagging.html">
-            <f:checkbox name="commitBeforeTagging" checked="${it.isCommitBeforeTagging()}" />
+            <f:checkbox field="commitBeforeTagging" name="commitBeforeTagging" checked="${it.isCommitBeforeTagging()}" />
           </f:entry>
         </f:section>
 

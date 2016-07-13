@@ -34,17 +34,14 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
   }
 
   public String getTooltipText() {
-    StringBuilder str = new StringBuilder();
-
+    StringBuilder sb = new StringBuilder();
     if (isFailedBuild()) {
-      str.append("Failed release");
+      sb.append("Failed release");
     } else {
-      str.append("Release");
+      sb.append("Release");
     }
-    str.append(" - ");
-    str.append(getVersionNumber());
-
-    return str.toString();
+    sb.append(" - ").append(getVersionNumber());
+    return sb.toString();
   }
 
   public boolean isSuccessfulBuild() {
