@@ -37,12 +37,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private boolean preselectUseGlobalVersion = DescriptorImpl.DEFAULT_PRESELECT_USE_GLOBAL_VERSION;
   private boolean preselectAllowLocalReleaseArtifacts = DescriptorImpl.DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
   private boolean preselectCommitBeforeTagging = DescriptorImpl.DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING;
+  private String workflowPath = DescriptorImpl.DEFAULT_WORKFLOW_PATH;
 
   @DataBoundConstructor
   public UnleashMavenBuildWrapper(String goals, String profiles, String releaseArgs, boolean useLogTimestamps,
       String tagNamePattern, String scmMessagePrefix, boolean preselectUseCustomScmCredentials,
       boolean preselectUseGlobalVersion, List<HookDescriptor> hooks, boolean preselectAllowLocalReleaseArtifacts,
-      boolean preselectCommitBeforeTagging) {
+      boolean preselectCommitBeforeTagging, String workflowPath) {
     super();
     this.goals = goals;
     this.profiles = profiles;
@@ -55,6 +56,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.hooks = hooks;
     this.preselectAllowLocalReleaseArtifacts = preselectAllowLocalReleaseArtifacts;
     this.preselectCommitBeforeTagging = preselectCommitBeforeTagging;
+    this.workflowPath = workflowPath;
   }
 
   @Override
@@ -74,6 +76,11 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
 
     UnleashArgumentsAction arguments = build.getAction(UnleashArgumentsAction.class);
     StringBuilder command = new StringBuilder(getGoals());
+
+    if (StringUtils.isNotBlank(this.workflowPath)) {
+      // TODO handle absolute and relative paths!
+      command.append(" -Dworkflow=").append(this.workflowPath);
+    }
 
     // appends the profiles to the Maven call
     if (StringUtils.isNotBlank(getProfiles())) {
@@ -102,7 +109,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     if (StringUtils.isNotBlank(getScmMessagePrefix())) {
       command.append(" -Dunleash.scmMessagePrefix=").append(getScmMessagePrefix().trim());
     }
-    command.append(" -Dunleash.logTimestamps=").append(isUseLogTimestamps());
+    command.append(" -DenableLogTimestamps=").append(isUseLogTimestamps());
 
     if (this.hooks != null) {
       for (HookDescriptor hookData : this.hooks) {
@@ -245,6 +252,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.preselectCommitBeforeTagging = preselectCommitBeforeTagging;
   }
 
+  public String getWorkflowPath() {
+    return this.workflowPath;
+  }
+
+  public void setWorkflowPath(String workflowPath) {
+    this.workflowPath = workflowPath;
+  }
+
   @Extension
   public static class DescriptorImpl extends BuildWrapperDescriptor {
     public static final String DEFAULT_GOALS = "unleash:perform";
@@ -257,6 +272,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final boolean DEFAULT_PRESELECT_USE_GLOBAL_VERSION = false;
     public static final boolean DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS = true;
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
+    public static final String DEFAULT_WORKFLOW_PATH = "";
 
     private boolean useLogTimestamps = DEFAULT_USE_LOG_TIMESTAMPS;
     private boolean preselectAllowLocalReleaseArtifacts = DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
