@@ -1,6 +1,7 @@
-package com.itemis.jenkins.plugins.unleash;
+package com.itemis.jenkins.plugins.unleash.permalinks;
 
-import hudson.model.Result;
+import com.itemis.jenkins.plugins.unleash.UnleashBadgeAction;
+
 import hudson.model.Run;
 import hudson.model.PermalinkProjectAction.Permalink;
 import jenkins.model.PeepholePermalink;
@@ -10,25 +11,20 @@ public class LastSuccessfulReleasePermalink extends PeepholePermalink {
 
   @Override
   public boolean apply(Run<?, ?> run) {
-    boolean retVal = false;
-    UnleashAction a = run.getAction(UnleashAction.class);
-    if (a != null) {
-      if (!run.isBuilding()) {
-        if (run.getResult() == Result.SUCCESS) {
-          retVal = true;
-        }
-      }
+    UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
+    if (badgeAction != null) {
+      return !run.isBuilding() && badgeAction.isSuccessfulBuild();
     }
-    return retVal;
+    return false;
   }
 
   @Override
   public String getDisplayName() {
-    return "Last Successful Release";
+    return "Last Successful Release Build";
   }
 
   @Override
   public String getId() {
-    return "lastSuccessfulRelease";
+    return "lastSuccessfulReleaseBuild";
   }
 }

@@ -13,6 +13,8 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.itemis.jenkins.plugins.unleash.permalinks.LastFailedReleasePermalink;
+import com.itemis.jenkins.plugins.unleash.permalinks.LastSuccessfulReleasePermalink;
 import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 
 import hudson.maven.MavenModule;

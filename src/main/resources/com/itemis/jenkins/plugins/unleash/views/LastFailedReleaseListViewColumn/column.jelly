@@ -1,0 +1,9 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+  <j:set var="info" value="${it.getLastReleaseInfoOf(job)}" />
+  <td data="${info.build.timestampString2}">
+    <j:if test="${info!=null}">
+      ${info.build.timestampString}
+      (<a href="${jobBaseUrl}${job.shortUrl}lastFailedReleaseBuild/">${info.action.versionNumber}</a>)
+    </j:if>
+  </td>
+</j:jelly>

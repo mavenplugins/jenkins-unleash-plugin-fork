@@ -1,0 +1,21 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+  xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+
+  <j:choose>
+    <j:when test="${iconSize == '16x16'}">
+      <j:set var="imgSize" value="16" />
+    </j:when>
+    <j:otherwise>
+      <j:set var="imgSize" value="24" />
+    </j:otherwise>
+  </j:choose>
+
+  <td data="${job}">
+    <j:if test="${it.isProjectEnabled(job)}">
+      <a href="${jobBaseUrl}${job.shortUrl}unleash/">
+        <img style="width: ${imgSize}px; height: ${imgSize}px;" src="${rootURL}/plugin/unleash/img/unleash.png" title="Trigger Unleash Maven Plugin"
+          alt="Trigger Unleash Maven Plugin" />
+      </a>
+    </j:if>
+  </td>
+</j:jelly>
