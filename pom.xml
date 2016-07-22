@@ -21,7 +21,7 @@
     <jenkins-test-harness.version>2.1</jenkins-test-harness.version>
   </properties>
 
-  <name>Unleash Maven Plugin Plugin</name>
+  <name>Unleash Maven Plugin</name>
   <description>Provides Maven release functionality using the Unleash Maven Plugin.</description>
   <url>https://github.com/shillner/unleash-jenkins-plugin</url>
 
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>com.itemis.maven.plugins</groupId>
       <artifactId>unleash-utils</artifactId>
-      <version>0.3.0</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
