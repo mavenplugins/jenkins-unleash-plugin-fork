@@ -24,7 +24,7 @@
 
   <name>Unleash Maven Plugin</name>
   <description>Provides Maven release functionality using the Unleash Maven Plugin.</description>
-  <url>https://github.com/shillner/unleash-jenkins-plugin</url>
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Unleash+Plugin</url>
 
   <licenses>
     <license>
