@@ -45,8 +45,8 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/shillner/unleash-jenkins-plugin.git</connection>
-    <url>https://github.com/shillner/unleash-jenkins-plugin</url>
+    <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
+    <url>https://github.com/jenkinsci/unleash-plugin</url>
     <tag>HEAD</tag>
   </scm>
 
