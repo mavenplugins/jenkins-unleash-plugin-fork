@@ -62,7 +62,7 @@
     <version.maven-plugin>2.9</version.maven-plugin>
     <version.unleash-maven-plugin>1.0.2</version.unleash-maven-plugin>
     <version.unleash-utils>1.0.2</version.unleash-utils>
-    <version.unleash-scm-provider-git>1.0.0</version.unleash-scm-provider-git>
+    <version.unleash-scm-provider-git>1.0.1</version.unleash-scm-provider-git>
   </properties>
 
   <dependencies>
