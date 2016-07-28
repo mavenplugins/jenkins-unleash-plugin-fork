@@ -14,17 +14,15 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
-  <properties>
-    <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>1.625.3</jenkins.version>
-    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
-    <java.level>7</java.level>
-    <jenkins-test-harness.version>2.1</jenkins-test-harness.version>
-  </properties>
-
   <name>Unleash Maven Plugin</name>
   <description>Provides Maven release functionality using the Unleash Maven Plugin.</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Unleash+Plugin</url>
+
+  <scm>
+    <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
+    <url>https://github.com/jenkinsci/unleash-plugin</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <licenses>
     <license>
@@ -44,12 +42,6 @@
     </developer>
   </developers>
 
-  <scm>
-    <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
-    <url>https://github.com/jenkinsci/unleash-plugin</url>
-    <tag>HEAD</tag>
-  </scm>
-
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
@@ -62,6 +54,14 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
+
+  <properties>
+    <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
+    <jenkins.version>1.625.3</jenkins.version>
+    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
+    <java.level>7</java.level>
+    <jenkins-test-harness.version>2.1</jenkins-test-harness.version>
+  </properties>
 
   <dependencies>
     <dependency>
