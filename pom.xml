@@ -9,7 +9,7 @@
 
   <groupId>com.itemis.jenkins.plugins</groupId>
   <artifactId>unleash</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>hpi</packaging>
 
   <name>Unleash Maven Plugin</name>
@@ -19,7 +19,7 @@
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
     <url>https://github.com/jenkinsci/unleash-plugin</url>
-    <tag>HEAD</tag>
+    <tag>1.0.0</tag>
   </scm>
 
   <licenses>
