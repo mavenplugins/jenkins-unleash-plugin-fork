@@ -64,6 +64,7 @@
     <version.maven-plugin>2.9</version.maven-plugin>
     <version.unleash-maven-plugin>1.0.2</version.unleash-maven-plugin>
     <version.unleash-utils>1.0.2</version.unleash-utils>
+    <version.unleash-scm-provider-git>1.0.0</version.unleash-scm-provider-git>
   </properties>
 
   <dependencies>
@@ -98,6 +99,13 @@
           <groupId>com.itemis.maven.plugins</groupId>
           <artifactId>unleash-maven-plugin</artifactId>
           <version>${version.unleash-maven-plugin}</version>
+          <dependencies>
+          <dependency>
+            <groupId>com.itemis.maven.plugins</groupId>
+            <artifactId>unleash-scm-provider-git</artifactId>
+            <version>${version.unleash-scm-provider-git}</version>
+          </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
