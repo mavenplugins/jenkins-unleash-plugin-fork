@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
-  xmlns:f="/lib/form">
+  xmlns:f="/lib/form" xmlns:c="/lib/credentials">
   <f:entry title="Goals" help="/plugin/unleash/help-projectConfig-releaseGoals.html">
     <f:textbox field="goals" value="${instance.goals}" default="${descriptor.DEFAULT_GOALS}" />
   </f:entry>
@@ -9,6 +9,9 @@
   </f:entry>
   <f:entry title="Additional Release Arguments" help="/plugin/unleash/help-projectConfig-releaseArgs.html">
     <f:textbox field="releaseArgs" value="${instance.releaseArgs}" default="${descriptor.DEFAULT_RELEASE_ARGS}" />
+  </f:entry>
+  <f:entry title="SCM Credentials" field="credentialsId">
+    <c:select />
   </f:entry>
 
   <f:advanced>
@@ -41,10 +44,6 @@
     <f:entry title="Preselect 'Specify A Global Version For All Modules'" help="/plugin/unleash/help-projectConfig-globalVersion.html">
       <f:checkbox name="preselectUseGlobalVersion" checked="${instance.preselectUseGlobalVersion}"
         default="${descriptor.DEFAULT_PRESELECT_USE_GLOBAL_VERSION}" />
-    </f:entry>
-    <f:entry title="Preselect 'Use custom SCM credentials'" help="/plugin/unleash/help-projectConfig-scmCredentials.html">
-      <f:checkbox name="preselectUseCustomScmCredentials" checked="${instance.preselectUseCustomScmCredentials}"
-        default="${descriptor.DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS}" />
     </f:entry>
     <f:entry title="Preselect 'Allow Local Release Artifacts'" help="/plugin/unleash/help-projectConfig-localReleaseArtifacts.html">
       <f:checkbox field="preselectAllowLocalReleaseArtifacts" value="${instance.preselectAllowLocalReleaseArtifacts}"

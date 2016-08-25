@@ -1,14 +1,10 @@
 package com.itemis.jenkins.plugins.unleash;
 
-import com.google.common.base.Optional;
-
 import hudson.model.Action;
 
 public class UnleashArgumentsAction implements Action {
   private String globalReleaseVersion;
   private String globalDevelopmentVersion;
-  private String scmUsername;
-  private String scmPassword;
   private boolean useGlobalReleaseVersion;
   private boolean allowLocalReleaseArtifacts;
   private boolean commitBeforeTagging;
@@ -50,22 +46,6 @@ public class UnleashArgumentsAction implements Action {
 
   public void setGlobalDevelopmentVersion(String globalDevelopmentVersion) {
     this.globalDevelopmentVersion = globalDevelopmentVersion;
-  }
-
-  public Optional<String> getScmUsername() {
-    return Optional.fromNullable(this.scmUsername);
-  }
-
-  public void setScmUsername(String scmUsername) {
-    this.scmUsername = scmUsername;
-  }
-
-  public Optional<String> getScmPassword() {
-    return Optional.fromNullable(this.scmPassword);
-  }
-
-  public void setScmPassword(String scmPassword) {
-    this.scmPassword = scmPassword;
   }
 
   public boolean allowLocalReleaseArtifacts() {

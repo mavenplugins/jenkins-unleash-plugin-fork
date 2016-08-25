@@ -20,21 +20,18 @@ import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.PermalinkProjectAction;
-import hudson.model.PermalinkProjectAction.Permalink;
 
 public class UnleashAction implements PermalinkProjectAction {
   private static final Logger LOGGER = Logger.getLogger(UnleashAction.class.getName());
 
   private MavenModuleSet project;
-  private boolean useCustomScmCredentials;
   private boolean useGlobalVersion;
   private boolean allowLocalReleaseArtifacts;
   private boolean commitBeforeTagging;
 
-  public UnleashAction(MavenModuleSet project, boolean useCustomScmCredentials, boolean useGlobalVersion,
-      boolean allowLocalReleaseArtifacts, boolean commitBeforeTagging) {
+  public UnleashAction(MavenModuleSet project, boolean useGlobalVersion, boolean allowLocalReleaseArtifacts,
+      boolean commitBeforeTagging) {
     this.project = project;
-    this.useCustomScmCredentials = useCustomScmCredentials;
     this.useGlobalVersion = useGlobalVersion;
     this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
     this.commitBeforeTagging = commitBeforeTagging;
@@ -94,14 +91,6 @@ public class UnleashAction implements PermalinkProjectAction {
     return version;
   }
 
-  public boolean isUseCustomScmCredentials() {
-    return this.useCustomScmCredentials;
-  }
-
-  public void setUseCustomScmCredentials(boolean useCustomScmCredentials) {
-    this.useCustomScmCredentials = useCustomScmCredentials;
-  }
-
   public boolean isUseGlobalVersion() {
     return this.useGlobalVersion;
   }
@@ -149,12 +138,6 @@ public class UnleashAction implements PermalinkProjectAction {
     } else {
       arguments.setGlobalReleaseVersion(computeReleaseVersion());
       arguments.setGlobalDevelopmentVersion(computeNextDevelopmentVersion());
-    }
-
-    boolean customCredentials = requestWrapper.getBoolean("setScmCredentials");
-    if (customCredentials) {
-      arguments.setScmUsername(requestWrapper.getString("scmUsername"));
-      arguments.setScmPassword(requestWrapper.getString("scmPassword"));
     }
 
     arguments.setAllowLocalReleaseArtifacts(requestWrapper.getBoolean("allowLocalReleaseArtifacts"));

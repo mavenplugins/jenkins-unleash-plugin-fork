@@ -38,18 +38,6 @@
           </f:radioBlock>
         </f:section>
 
-        <f:section title="SCM Credentials">
-          <f:optionalBlock name="setScmCredentials" title="Use custom SCM credentials" checked="${it.isUseCustomScmCredentials()}"
-            help="/plugin/unleash/help-actionUnleash-scmCredentials.html">
-            <f:entry title="Username">
-              <f:textbox name="scmUsername" />
-            </f:entry>
-            <f:entry title="Password">
-              <f:password name="scmPassword" />
-            </f:entry>
-          </f:optionalBlock>
-        </f:section>
-
         <f:section title="Advanced">
           <f:entry title="Allow Local Release Artifacts" help="/plugin/unleash/help-actionUnleash-localReleaseArtifacts.html">
             <f:checkbox field="allowLocalReleaseArtifacts" name="allowLocalReleaseArtifacts" checked="${it.isAllowLocalReleaseArtifacts()}"/>

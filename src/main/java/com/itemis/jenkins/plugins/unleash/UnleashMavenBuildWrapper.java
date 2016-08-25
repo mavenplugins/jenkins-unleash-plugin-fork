@@ -7,11 +7,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import com.cloudbees.plugins.credentials.CredentialsMatcher;
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -21,11 +30,19 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
+import hudson.model.Item;
+import hudson.model.queue.Tasks;
+import hudson.security.ACL;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.ListBoxModel;
 import net.sf.json.JSONObject;
 
 public class UnleashMavenBuildWrapper extends BuildWrapper {
+  private static String ENV_VAR_SCM_USERNAME = "UNLEASH_SCM_USERNAME";
+  private static String ENV_VAR_SCM_PASSWORD = "UNLEASH_SCM_PASSWORD";
+  private static String ENV_VAR_SCM_SSH_PASSPHRASE = "UNLEASH_SCM_SSH_PASSPHRASE";
+
   private String goals = DescriptorImpl.DEFAULT_GOALS;
   private String profiles = DescriptorImpl.DEFAULT_PROFILES;
   private String releaseArgs = DescriptorImpl.DEFAULT_RELEASE_ARGS;
@@ -33,17 +50,17 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private boolean useLogTimestamps = DescriptorImpl.DEFAULT_USE_LOG_TIMESTAMPS;
   private String tagNamePattern = DescriptorImpl.DEFAULT_TAG_NAME_PATTERN;
   private String scmMessagePrefix = DescriptorImpl.DEFAULT_SCM_MESSAGE_PREFIX;
-  private boolean preselectUseCustomScmCredentials = DescriptorImpl.DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS;
   private boolean preselectUseGlobalVersion = DescriptorImpl.DEFAULT_PRESELECT_USE_GLOBAL_VERSION;
   private boolean preselectAllowLocalReleaseArtifacts = DescriptorImpl.DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
   private boolean preselectCommitBeforeTagging = DescriptorImpl.DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING;
   private String workflowPath = DescriptorImpl.DEFAULT_WORKFLOW_PATH;
+  private String credentialsId;
 
   @DataBoundConstructor
   public UnleashMavenBuildWrapper(String goals, String profiles, String releaseArgs, boolean useLogTimestamps,
-      String tagNamePattern, String scmMessagePrefix, boolean preselectUseCustomScmCredentials,
-      boolean preselectUseGlobalVersion, List<HookDescriptor> hooks, boolean preselectAllowLocalReleaseArtifacts,
-      boolean preselectCommitBeforeTagging, String workflowPath) {
+      String tagNamePattern, String scmMessagePrefix, boolean preselectUseGlobalVersion, List<HookDescriptor> hooks,
+      boolean preselectAllowLocalReleaseArtifacts, boolean preselectCommitBeforeTagging, String workflowPath,
+      String credentialsId) {
     super();
     this.goals = goals;
     this.profiles = profiles;
@@ -51,12 +68,12 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.useLogTimestamps = useLogTimestamps;
     this.tagNamePattern = tagNamePattern;
     this.scmMessagePrefix = scmMessagePrefix;
-    this.preselectUseCustomScmCredentials = preselectUseCustomScmCredentials;
     this.preselectUseGlobalVersion = preselectUseGlobalVersion;
     this.hooks = hooks;
     this.preselectAllowLocalReleaseArtifacts = preselectAllowLocalReleaseArtifacts;
     this.preselectCommitBeforeTagging = preselectCommitBeforeTagging;
     this.workflowPath = workflowPath;
+    this.credentialsId = credentialsId;
   }
 
   @Override
@@ -66,10 +83,6 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       return new Environment() {
         @Override
         public void buildEnvVars(Map<String, String> env) {
-          // if (StringUtils.isNotBlank(releaseEnvVar)) {
-          // // inform others that we are NOT doing a release build
-          // env.put(releaseEnvVar, "false");
-          // }
         }
       };
     }
@@ -128,30 +141,52 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         command.append(" -Dunleash.releaseVersion=").append(arguments.getGlobalReleaseVersion());
         command.append(" -Dunleash.developmentVersion=").append(arguments.getGlobalDevelopmentVersion());
       }
-      if (arguments.getScmUsername().isPresent()) {
-        command.append(" -Dunleash.scmUsername=").append(arguments.getScmUsername().get());
-      }
-      if (arguments.getScmPassword().isPresent()) {
-        command.append(" -Dunleash.scmPassword=").append(arguments.getScmPassword().get());
-      }
       command.append(" -Dunleash.allowLocalReleaseArtifacts=").append(arguments.allowLocalReleaseArtifacts());
       command.append(" -Dunleash.commitBeforeTagging=").append(arguments.commitBeforeTagging());
     }
+
+    final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
 
     build.addAction(new UnleashArgumentInterceptorAction(command.toString()));
     build.addAction(new UnleashBadgeAction());
 
     return new Environment() {
-
       @Override
       public void buildEnvVars(Map<String, String> env) {
-        // if (StringUtils.isNotBlank(releaseEnvVar)) {
-        // // inform others that we are NOT doing a release build
-        // env.put(releaseEnvVar, "false");
-        // }
+        // TODO maybe add an environment variable indicating a release build
+        env.putAll(scmEnv);
       }
-
     };
+  }
+
+  private Map<String, String> updateCommandWithScmCredentials(AbstractBuild build, StringBuilder command) {
+    String scmUsername = null;
+    String scmPassword = null;
+    String scmSshPassphrase = null;
+    if (StringUtils.isNotBlank(this.credentialsId)) {
+      StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(this.credentialsId,
+          StandardUsernamePasswordCredentials.class, build, URIRequirementBuilder.create().build());
+      if (credentials != null) {
+        scmUsername = credentials.getUsername();
+        scmPassword = credentials.getPassword().getPlainText();
+      }
+      // TODO set passphrase if SSH is supported!
+    }
+
+    final Map<String, String> scmEnv = Maps.newHashMap();
+    if (scmUsername != null) {
+      command.append(" -Dunleash.scmUsernameEnvVar=" + ENV_VAR_SCM_USERNAME);
+      scmEnv.put(ENV_VAR_SCM_USERNAME, scmUsername);
+    }
+    if (scmPassword != null) {
+      command.append(" -Dunleash.scmPasswordEnvVar=" + ENV_VAR_SCM_PASSWORD);
+      scmEnv.put(ENV_VAR_SCM_PASSWORD, scmPassword);
+    }
+    if (scmSshPassphrase != null) {
+      command.append(" -Dunleash.scmSshPassphraseEnvVar=" + ENV_VAR_SCM_SSH_PASSPHRASE);
+      scmEnv.put(ENV_VAR_SCM_SSH_PASSPHRASE, scmSshPassphrase);
+    }
+    return scmEnv;
   }
 
   private boolean isReleaseBuild(@SuppressWarnings("rawtypes") AbstractBuild build) {
@@ -206,14 +241,6 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.scmMessagePrefix = scmMessagePrefix;
   }
 
-  public boolean isPreselectUseCustomScmCredentials() {
-    return this.preselectUseCustomScmCredentials;
-  }
-
-  public void setPreselectUseCustomScmCredentials(boolean preselectUseCustomScmCredentials) {
-    this.preselectUseCustomScmCredentials = preselectUseCustomScmCredentials;
-  }
-
   public boolean isPreselectUseGlobalVersion() {
     return this.preselectUseGlobalVersion;
   }
@@ -224,8 +251,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
 
   @Override
   public Collection<? extends Action> getProjectActions(@SuppressWarnings("rawtypes") AbstractProject job) {
-    return Collections.singleton(new UnleashAction((MavenModuleSet) job, this.preselectUseCustomScmCredentials,
-        this.preselectUseGlobalVersion, this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging));
+    return Collections.singleton(new UnleashAction((MavenModuleSet) job, this.preselectUseGlobalVersion,
+        this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging));
   }
 
   public List<HookDescriptor> getHooks() {
@@ -260,6 +287,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.workflowPath = workflowPath;
   }
 
+  public String getCredentialsId() {
+    return this.credentialsId;
+  }
+
+  public void setCredentialsId(String credentialsId) {
+    this.credentialsId = credentialsId;
+  }
+
   @Extension
   public static class DescriptorImpl extends BuildWrapperDescriptor {
     public static final String DEFAULT_GOALS = "unleash:perform";
@@ -268,11 +303,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final boolean DEFAULT_USE_LOG_TIMESTAMPS = true;
     public static final String DEFAULT_TAG_NAME_PATTERN = "@{project.version}";
     public static final String DEFAULT_SCM_MESSAGE_PREFIX = "[unleash-maven-plugin]";
-    public static final boolean DEFAULT_PRESELECT_USE_CUSTOM_SCM_CREDENTIALS = false;
     public static final boolean DEFAULT_PRESELECT_USE_GLOBAL_VERSION = false;
     public static final boolean DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS = true;
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
     public static final String DEFAULT_WORKFLOW_PATH = "";
+
+    private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers
+        .anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class));
 
     private boolean useLogTimestamps = DEFAULT_USE_LOG_TIMESTAMPS;
     private boolean preselectAllowLocalReleaseArtifacts = DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
@@ -335,6 +372,18 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       req.bindJSON(this, json);
       save();
       return super.configure(req, json);
+    }
+
+    // TODO adapt to be able to use SSH credentials also!
+    public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item context, @QueryParameter String credentialsId) {
+      if (context == null || !context.hasPermission(Item.CONFIGURE)) {
+        return new ListBoxModel();
+      }
+      return new StandardListBoxModel().includeEmptyValue().includeMatchingAs(
+          context instanceof hudson.model.Queue.Task ? Tasks.getAuthenticationOf((hudson.model.Queue.Task) context)
+              : ACL.SYSTEM,
+          context, StandardUsernamePasswordCredentials.class, URIRequirementBuilder.create().build(),
+          CREDENTIALS_MATCHER);
     }
   }
 }
