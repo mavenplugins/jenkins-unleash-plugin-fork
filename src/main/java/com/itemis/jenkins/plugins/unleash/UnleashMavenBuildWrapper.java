@@ -12,10 +12,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
 import com.cloudbees.plugins.credentials.CredentialsMatcher;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.google.common.base.Splitter;
@@ -36,6 +38,7 @@ import hudson.security.ACL;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import net.sf.json.JSONObject;
 
 public class UnleashMavenBuildWrapper extends BuildWrapper {
@@ -164,13 +167,17 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     String scmPassword = null;
     String scmSshPassphrase = null;
     if (StringUtils.isNotBlank(this.credentialsId)) {
-      StandardUsernamePasswordCredentials credentials = CredentialsProvider.findCredentialById(this.credentialsId,
-          StandardUsernamePasswordCredentials.class, build, URIRequirementBuilder.create().build());
-      if (credentials != null) {
-        scmUsername = credentials.getUsername();
-        scmPassword = credentials.getPassword().getPlainText();
+      StandardUsernameCredentials credentials = CredentialsProvider.findCredentialById(this.credentialsId,
+          StandardUsernameCredentials.class, build, URIRequirementBuilder.create().build());
+      if (credentials instanceof StandardUsernamePasswordCredentials) {
+        StandardUsernamePasswordCredentials c = (StandardUsernamePasswordCredentials) credentials;
+        scmUsername = c.getUsername();
+        scmPassword = c.getPassword().getPlainText();
+      } else if (credentials instanceof SSHUserPrivateKey) {
+        SSHUserPrivateKey c = (SSHUserPrivateKey) credentials;
+        Secret passphrase = c.getPassphrase();
+        scmSshPassphrase = passphrase != null ? passphrase.getPlainText() : null;
       }
-      // TODO set passphrase if SSH is supported!
     }
 
     final Map<String, String> scmEnv = Maps.newHashMap();
@@ -308,8 +315,9 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
     public static final String DEFAULT_WORKFLOW_PATH = "";
 
-    private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers
-        .anyOf(CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class));
+    private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers.anyOf(
+        CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class),
+        CredentialsMatchers.instanceOf(SSHUserPrivateKey.class));
 
     private boolean useLogTimestamps = DEFAULT_USE_LOG_TIMESTAMPS;
     private boolean preselectAllowLocalReleaseArtifacts = DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
@@ -382,8 +390,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       return new StandardListBoxModel().includeEmptyValue().includeMatchingAs(
           context instanceof hudson.model.Queue.Task ? Tasks.getAuthenticationOf((hudson.model.Queue.Task) context)
               : ACL.SYSTEM,
-          context, StandardUsernamePasswordCredentials.class, URIRequirementBuilder.create().build(),
-          CREDENTIALS_MATCHER);
+          context, StandardUsernameCredentials.class, URIRequirementBuilder.create().build(), CREDENTIALS_MATCHER);
     }
   }
 }
