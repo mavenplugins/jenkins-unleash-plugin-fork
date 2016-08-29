@@ -1,3 +1,9 @@
 <div>
-  Specify additional arguments for the release build here. These arguments are then passed to the newly created Maven process (e.g. <tt>-DfailIfNoTests=false</tt>)
+  Specify additional arguments for the release build here. These arguments are then passed as system properties to the newly created Maven process.<br>
+  Please do not use <tt>-D</tt> and list all arguments comma-separated. Argument keys and values are separated by a <tt>=</tt>.<br><br>
+  Examples:
+  <ul>
+    <li><tt>maven.test.skip=true</tt></li>
+    <li><tt>detail=true,skipTests=</tt></li>
+  </ul>
 </div>
