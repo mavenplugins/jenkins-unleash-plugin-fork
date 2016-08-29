@@ -143,6 +143,12 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       }
       command.append(" -Dunleash.allowLocalReleaseArtifacts=").append(arguments.allowLocalReleaseArtifacts());
       command.append(" -Dunleash.commitBeforeTagging=").append(arguments.commitBeforeTagging());
+      if (arguments.errorLog()) {
+        command.append(" -e");
+      }
+      if (arguments.debugLog()) {
+        command.append(" -X");
+      }
     }
 
     final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
@@ -256,7 +262,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   @Override
   public Collection<? extends Action> getProjectActions(@SuppressWarnings("rawtypes") AbstractProject job) {
     return Collections.singleton(new UnleashAction((MavenModuleSet) job, this.preselectUseGlobalVersion,
-        this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging));
+        this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging, false, false));
   }
 
   public List<HookDescriptor> getHooks() {

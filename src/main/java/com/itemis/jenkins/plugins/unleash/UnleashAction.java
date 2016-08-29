@@ -20,6 +20,7 @@ import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.PermalinkProjectAction;
+import hudson.model.PermalinkProjectAction.Permalink;
 
 public class UnleashAction implements PermalinkProjectAction {
   private static final Logger LOGGER = Logger.getLogger(UnleashAction.class.getName());
@@ -28,13 +29,17 @@ public class UnleashAction implements PermalinkProjectAction {
   private boolean useGlobalVersion;
   private boolean allowLocalReleaseArtifacts;
   private boolean commitBeforeTagging;
+  private boolean errorLog;
+  private boolean debugLog;
 
   public UnleashAction(MavenModuleSet project, boolean useGlobalVersion, boolean allowLocalReleaseArtifacts,
-      boolean commitBeforeTagging) {
+      boolean commitBeforeTagging, boolean errorLog, boolean debugLog) {
     this.project = project;
     this.useGlobalVersion = useGlobalVersion;
     this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
     this.commitBeforeTagging = commitBeforeTagging;
+    this.errorLog = errorLog;
+    this.debugLog = debugLog;
   }
 
   @Override
@@ -119,6 +124,22 @@ public class UnleashAction implements PermalinkProjectAction {
     this.commitBeforeTagging = commitBeforeTagging;
   }
 
+  public boolean isErrorLog() {
+    return this.errorLog;
+  }
+
+  public void setErrorLog(boolean errorLog) {
+    this.errorLog = errorLog;
+  }
+
+  public boolean isDebugLog() {
+    return this.debugLog;
+  }
+
+  public void setDebugLog(boolean debugLog) {
+    this.debugLog = debugLog;
+  }
+
   public List<MavenModule> getAllMavenModules() {
     List<MavenModule> modules = Lists.newArrayList();
     modules.addAll(this.project.getModules());
@@ -142,6 +163,8 @@ public class UnleashAction implements PermalinkProjectAction {
 
     arguments.setAllowLocalReleaseArtifacts(requestWrapper.getBoolean("allowLocalReleaseArtifacts"));
     arguments.setCommitBeforeTagging(requestWrapper.getBoolean("commitBeforeTagging"));
+    arguments.setErrorLog(requestWrapper.getBoolean("errorLog"));
+    arguments.setDebugLog(requestWrapper.getBoolean("debugLog"));
 
     if (this.project.scheduleBuild(0, new UnleashCause(), arguments)) {
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl());

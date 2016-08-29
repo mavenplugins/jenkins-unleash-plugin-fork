@@ -8,6 +8,8 @@ public class UnleashArgumentsAction implements Action {
   private boolean useGlobalReleaseVersion;
   private boolean allowLocalReleaseArtifacts;
   private boolean commitBeforeTagging;
+  private boolean errorLog;
+  private boolean debugLog;
 
   @Override
   public String getIconFileName() {
@@ -62,5 +64,21 @@ public class UnleashArgumentsAction implements Action {
 
   public void setCommitBeforeTagging(boolean commitBeforeTagging) {
     this.commitBeforeTagging = commitBeforeTagging;
+  }
+
+  public boolean errorLog() {
+    return this.errorLog;
+  }
+
+  public void setErrorLog(boolean errorLog) {
+    this.errorLog = errorLog;
+  }
+
+  public boolean debugLog() {
+    return this.debugLog;
+  }
+
+  public void setDebugLog(boolean debugLog) {
+    this.debugLog = debugLog;
   }
 }

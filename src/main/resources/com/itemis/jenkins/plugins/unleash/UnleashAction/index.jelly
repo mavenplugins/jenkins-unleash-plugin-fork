@@ -45,6 +45,12 @@
           <f:entry title="Commit Before Tagging" help="/plugin/unleash/help-actionUnleash-commitBeforeTagging.html">
             <f:checkbox field="commitBeforeTagging" name="commitBeforeTagging" checked="${it.isCommitBeforeTagging()}" />
           </f:entry>
+          <f:entry title="Show error messages (-e)">
+            <f:checkbox field="errorLog" name="errorLog" checked="${it.isErrorLog()}"/>
+          </f:entry>
+          <f:entry title="Show debug log messages (-X)">
+            <f:checkbox field="debugLog" name="debugLog" checked="${it.isDebugLog()}"/>
+          </f:entry>
         </f:section>
 
         <tr>
