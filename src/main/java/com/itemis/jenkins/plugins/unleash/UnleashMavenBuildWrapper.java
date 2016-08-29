@@ -20,6 +20,7 @@ import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -101,18 +102,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     // appends the profiles to the Maven call
     if (StringUtils.isNotBlank(getProfiles())) {
       Iterable<String> split = Splitter.on(',').split(getProfiles());
-      boolean isFirst = true;
+      List<String> profiles = Lists.newArrayList();
       for (String profile : split) {
-        if (StringUtils.isBlank(profile)) {
-          continue;
+        if (StringUtils.isNotBlank(profile)) {
+          profiles.add(profile.trim());
         }
-
-        if (isFirst) {
-          command.append(" -Dunleash.profiles=");
-        } else {
-          command.append(',');
-        }
-        command.append(profile.trim());
+      }
+      if (profiles.size() > 0) {
+        command.append(" -Dunleash.profiles=").append(Joiner.on(',').join(profiles));
       }
     }
 
