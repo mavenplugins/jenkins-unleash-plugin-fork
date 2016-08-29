@@ -109,7 +109,9 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         }
       }
       if (profiles.size() > 0) {
-        command.append(" -Dunleash.profiles=").append(Joiner.on(',').join(profiles));
+        String listedProfiles = Joiner.on(',').join(profiles);
+        command.append(" -P").append(listedProfiles);
+        command.append(" -Dunleash.profiles=").append(listedProfiles);
       }
     }
 
