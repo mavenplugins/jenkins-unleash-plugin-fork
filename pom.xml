@@ -9,7 +9,7 @@
 
   <groupId>com.itemis.jenkins.plugins</groupId>
   <artifactId>unleash</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Unleash Maven Plugin</name>
@@ -62,9 +62,9 @@
     <version.httpcore>4.4.5</version.httpcore>
     <version.maven-plugin>2.9</version.maven-plugin>
     <version.ssh-credentials>1.12</version.ssh-credentials>
-    <version.unleash-maven-plugin>2.0.0</version.unleash-maven-plugin>
+    <version.unleash-maven-plugin>2.2.1</version.unleash-maven-plugin>
     <version.unleash-utils>2.0.0</version.unleash-utils>
-    <version.unleash-scm-provider-git>2.0.0</version.unleash-scm-provider-git>
+    <version.unleash-scm-provider-git>2.0.2</version.unleash-scm-provider-git>
   </properties>
 
   <dependencies>
