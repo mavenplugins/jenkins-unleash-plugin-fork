@@ -38,6 +38,9 @@
         </table>
       </f:repeatable>
     </f:entry>
+    <f:entry title="Lock the n latest successful release builds" help="/plugin/unleash/help-projectConfig-lockReleaseBuilds.html">
+      <f:textbox name="numberOfBuildsToLock" value="${instance.numberOfBuildsToLock}" default="${descriptor.DEFAULT_NUMBER_OF_LOCKED_BUILDS}" />
+    </f:entry>
     <f:entry title="Use Log Timestamps" help="/plugin/unleash/help-projectConfig-logTimestamps.html">
       <f:checkbox field="useLogTimestamps" value="${instance.useLogTimestamps}" default="${descriptor.useLogTimestamps}" />
     </f:entry>

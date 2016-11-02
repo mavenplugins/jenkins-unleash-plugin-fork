@@ -57,11 +57,14 @@ import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Item;
+import hudson.model.Result;
+import hudson.model.Run;
 import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.ListBoxModel;
+import hudson.util.RunList;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
 
@@ -88,12 +91,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private boolean preselectCommitBeforeTagging = DescriptorImpl.DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING;
   private String workflowPath = DescriptorImpl.DEFAULT_WORKFLOW_PATH;
   private String credentialsId;
+  private int numberOfBuildsToLock = DescriptorImpl.DEFAULT_NUMBER_OF_LOCKED_BUILDS;
 
   @DataBoundConstructor
   public UnleashMavenBuildWrapper(String goals, String profiles, String releaseArgs, boolean useLogTimestamps,
       String tagNamePattern, String scmMessagePrefix, boolean preselectUseGlobalVersion, List<HookDescriptor> hooks,
       boolean preselectAllowLocalReleaseArtifacts, boolean preselectCommitBeforeTagging, String workflowPath,
-      String credentialsId) {
+      String credentialsId, int numberOfBuildsToLock) {
     super();
     this.goals = goals;
     this.profiles = profiles;
@@ -107,6 +111,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.preselectCommitBeforeTagging = preselectCommitBeforeTagging;
     this.workflowPath = workflowPath;
     this.credentialsId = credentialsId;
+    this.numberOfBuildsToLock = numberOfBuildsToLock;
   }
 
   @Override
@@ -187,13 +192,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     build.addAction(new UnleashArgumentInterceptorAction(command.toString()));
     build.addAction(new UnleashBadgeAction());
 
-    return new Environment() {
-      @Override
-      public void buildEnvVars(Map<String, String> env) {
-        // TODO maybe add an environment variable indicating a release build
-        env.putAll(scmEnv);
-      }
-    };
+    return new UnleashEnvironment(scmEnv);
   }
 
   private Map<String, String> updateCommandWithScmCredentials(AbstractBuild build, StringBuilder command) {
@@ -336,6 +335,62 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.credentialsId = credentialsId;
   }
 
+  public int getNumberOfBuildsToLock() {
+    return this.numberOfBuildsToLock;
+  }
+
+  public void setNumberOfBuildsToLock(int numberOfBuildsToLock) {
+    this.numberOfBuildsToLock = numberOfBuildsToLock;
+  }
+
+  private class UnleashEnvironment extends Environment {
+    private Map<String, String> scmEnv;
+
+    public UnleashEnvironment(Map<String, String> scmEnv) {
+      this.scmEnv = scmEnv;
+    }
+
+    @Override
+    public void buildEnvVars(Map<String, String> env) {
+      env.putAll(this.scmEnv);
+    }
+
+    @Override
+    public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
+      int lockedBuilds = 0;
+      Result result = build.getResult();
+      if (result != null && result.isBetterOrEqualTo(Result.SUCCESS)) {
+        if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock != 0) {
+          build.keepLog();
+          lockedBuilds++;
+        }
+        for (Run run : (RunList<? extends Run>) build.getProject().getBuilds()) {
+          if (isSuccessfulReleaseBuild(run)) {
+            if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock < 0
+                || lockedBuilds < UnleashMavenBuildWrapper.this.numberOfBuildsToLock) {
+              run.keepLog();
+              lockedBuilds++;
+            } else {
+              run.keepLog(false);
+            }
+          }
+        }
+      }
+      return super.tearDown(build, listener);
+    }
+
+    private boolean isSuccessfulReleaseBuild(Run run) {
+      UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
+      if (badgeAction != null && !run.isBuilding()) {
+        Result result = run.getResult();
+        if (result != null && result.isBetterOrEqualTo(Result.SUCCESS)) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
   @Extension
   public static class DescriptorImpl extends BuildWrapperDescriptor {
     public static final String DEFAULT_GOALS = "unleash:perform";
@@ -348,6 +403,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final boolean DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS = true;
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
     public static final String DEFAULT_WORKFLOW_PATH = "";
+    public static final int DEFAULT_NUMBER_OF_LOCKED_BUILDS = 1;
 
     private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers.anyOf(
         CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class),
