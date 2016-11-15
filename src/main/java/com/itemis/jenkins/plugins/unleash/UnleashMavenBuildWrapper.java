@@ -359,7 +359,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
       int lockedBuilds = 0;
       Result result = build.getResult();
-      if (result != null && result.isBetterOrEqualTo(Result.SUCCESS)) {
+      if (result != null && result.isBetterOrEqualTo(Result.UNSTABLE)) {
         if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock != 0) {
           build.keepLog();
           lockedBuilds++;
@@ -383,7 +383,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
       if (badgeAction != null && !run.isBuilding()) {
         Result result = run.getResult();
-        if (result != null && result.isBetterOrEqualTo(Result.SUCCESS)) {
+        if (result != null && result.isBetterOrEqualTo(Result.UNSTABLE)) {
           return true;
         }
       }

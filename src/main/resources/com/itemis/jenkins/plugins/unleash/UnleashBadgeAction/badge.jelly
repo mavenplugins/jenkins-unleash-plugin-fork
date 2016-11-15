@@ -1,11 +1,14 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
     <j:choose>
-        <j:if test="${it.isSuccessfulBuild()}">
+        <j:when test="${it.isSuccessfulBuild()}">
             <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-success.png"/>
-        </j:if>
-        <j:if test="${it.isFailedBuild()}">
+        </j:when>
+        <j:when test="${it.isFailedBuild()}">
             <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-failure.png"/>
-        </j:if>
+        </j:when>
+        <j:otherwise>
+            <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-unstable.png"/>
+        </j:otherwise>
     </j:choose>
 </j:jelly>

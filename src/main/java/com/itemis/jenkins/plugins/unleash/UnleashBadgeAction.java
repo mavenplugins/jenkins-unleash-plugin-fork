@@ -93,6 +93,16 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     return false;
   }
 
+  public boolean isUnstableBuild() {
+    if (this.run != null) {
+      Result result = this.run.getResult();
+      if (result != null) {
+        return result.isBetterOrEqualTo(Result.UNSTABLE) && result.isWorseOrEqualTo(Result.UNSTABLE);
+      }
+    }
+    return false;
+  }
+
   public boolean isBuilding() {
     return this.run.isBuilding();
   }
