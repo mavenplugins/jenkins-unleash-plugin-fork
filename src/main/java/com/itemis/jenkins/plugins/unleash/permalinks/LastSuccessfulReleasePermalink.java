@@ -42,7 +42,7 @@ public class LastSuccessfulReleasePermalink extends PeepholePermalink {
   public boolean apply(Run<?, ?> run) {
     UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
     if (badgeAction != null) {
-      return !run.isBuilding() && badgeAction.isSuccessfulBuild();
+      return !run.isBuilding() && (badgeAction.isSuccessfulBuild() || badgeAction.isUnstableBuild());
     }
     return false;
   }
