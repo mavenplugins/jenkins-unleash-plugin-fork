@@ -1,0 +1,10 @@
+<div>
+  Set the Strategy used for development version upgrades.<br>
+  If no custom global version number is used this parameter sets the system property <tt>-Dunleash.versionUpgradeStrategy</tt> to the specified value which gives a hint for the development version calculation. The following values are strategies are supported:
+  <ul>
+    <li><b><tt>MAJOR:</tt></b> Increments the major (first) part of the version (e.g. in <tt>x.y.z</tt> <tt>x</tt> will be incremented by 1).</li>
+    <li><b><tt>MINOR:</tt></b> Increments the minor (second) part of the version (e.g. in <tt>x.y.z</tt> <tt>y</tt> will be incremented by 1).</li>
+    <li><b><tt>INCREMENTAL:</tt></b> Increments the incremental (third) part of the version (e.g. in <tt>x.y.z</tt> <tt>z</tt> will be incremented by 1).</li>
+    <li><b><tt>DEFAULT:</tt></b> Increments the lowest (rightmost) part of the version by 1. This is the default as well as the fallback setting if the specfied strategy cannot be applied.</li>
+  </ul>
+</div>

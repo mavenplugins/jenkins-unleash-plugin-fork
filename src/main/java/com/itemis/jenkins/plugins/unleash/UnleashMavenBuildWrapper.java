@@ -47,6 +47,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -92,12 +93,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private String workflowPath = DescriptorImpl.DEFAULT_WORKFLOW_PATH;
   private String credentialsId;
   private int numberOfBuildsToLock = DescriptorImpl.DEFAULT_NUMBER_OF_LOCKED_BUILDS;
+  private VersionUpgradeStrategy versionUpgradeStrategy = DescriptorImpl.DEFAULT_VERSION_UPGRADE_STRATEGY;
 
   @DataBoundConstructor
   public UnleashMavenBuildWrapper(String goals, String profiles, String releaseArgs, boolean useLogTimestamps,
       String tagNamePattern, String scmMessagePrefix, boolean preselectUseGlobalVersion, List<HookDescriptor> hooks,
       boolean preselectAllowLocalReleaseArtifacts, boolean preselectCommitBeforeTagging, String workflowPath,
-      String credentialsId, int numberOfBuildsToLock) {
+      String credentialsId, int numberOfBuildsToLock, VersionUpgradeStrategy versionUpgradeStrategy) {
     super();
     this.goals = goals;
     this.profiles = profiles;
@@ -112,6 +114,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.workflowPath = workflowPath;
     this.credentialsId = credentialsId;
     this.numberOfBuildsToLock = numberOfBuildsToLock;
+    this.versionUpgradeStrategy = versionUpgradeStrategy;
   }
 
   @Override
@@ -176,6 +179,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       if (arguments.useGlobalReleaseVersion()) {
         command.append(" -Dunleash.releaseVersion=").append(arguments.getGlobalReleaseVersion());
         command.append(" -Dunleash.developmentVersion=").append(arguments.getGlobalDevelopmentVersion());
+      } else {
+        command.append(" -Dunleash.versionUpgradeStrategy=").append(getVersionUpgradeStrategy().name());
       }
       command.append(" -Dunleash.allowLocalReleaseArtifacts=").append(arguments.allowLocalReleaseArtifacts());
       command.append(" -Dunleash.commitBeforeTagging=").append(arguments.commitBeforeTagging());
@@ -292,7 +297,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   @Override
   public Collection<? extends Action> getProjectActions(@SuppressWarnings("rawtypes") AbstractProject job) {
     return Collections.singleton(new UnleashAction((MavenModuleSet) job, this.preselectUseGlobalVersion,
-        this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging, false, false));
+        this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging, false, false,
+        this.versionUpgradeStrategy));
   }
 
   public List<HookDescriptor> getHooks() {
@@ -341,6 +347,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
 
   public void setNumberOfBuildsToLock(int numberOfBuildsToLock) {
     this.numberOfBuildsToLock = numberOfBuildsToLock;
+  }
+
+  public VersionUpgradeStrategy getVersionUpgradeStrategy() {
+    return this.versionUpgradeStrategy;
+  }
+
+  public void setVersionUpgradeStrategy(VersionUpgradeStrategy versionUpgradeStrategy) {
+    this.versionUpgradeStrategy = versionUpgradeStrategy;
   }
 
   private class UnleashEnvironment extends Environment {
@@ -404,6 +418,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
     public static final String DEFAULT_WORKFLOW_PATH = "";
     public static final int DEFAULT_NUMBER_OF_LOCKED_BUILDS = 1;
+    public static final VersionUpgradeStrategy DEFAULT_VERSION_UPGRADE_STRATEGY = VersionUpgradeStrategy.DEFAULT;
 
     private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers.anyOf(
         CredentialsMatchers.instanceOf(StandardUsernamePasswordCredentials.class),
@@ -481,6 +496,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
           context instanceof hudson.model.Queue.Task ? Tasks.getAuthenticationOf((hudson.model.Queue.Task) context)
               : ACL.SYSTEM,
           context, StandardUsernameCredentials.class, URIRequirementBuilder.create().build(), CREDENTIALS_MATCHER);
+    }
+
+    public ListBoxModel doFillVersionUpgradeStrategyItems() {
+      ListBoxModel items = new ListBoxModel();
+      for (VersionUpgradeStrategy strategy : VersionUpgradeStrategy.values()) {
+        items.add(strategy.name(), strategy.name());
+      }
+      return items;
     }
   }
 }

@@ -39,11 +39,11 @@ import com.google.common.collect.Lists;
 import com.itemis.jenkins.plugins.unleash.permalinks.LastFailedReleasePermalink;
 import com.itemis.jenkins.plugins.unleash.permalinks.LastSuccessfulReleasePermalink;
 import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
+import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
 
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 import hudson.model.PermalinkProjectAction;
-import hudson.model.PermalinkProjectAction.Permalink;
 
 /**
  * @author Stanley Hillner
@@ -60,15 +60,17 @@ public class UnleashAction implements PermalinkProjectAction {
   private boolean commitBeforeTagging;
   private boolean errorLog;
   private boolean debugLog;
+  private VersionUpgradeStrategy versionUpgradeStrategy;
 
   public UnleashAction(MavenModuleSet project, boolean useGlobalVersion, boolean allowLocalReleaseArtifacts,
-      boolean commitBeforeTagging, boolean errorLog, boolean debugLog) {
+      boolean commitBeforeTagging, boolean errorLog, boolean debugLog, VersionUpgradeStrategy versionUpgradeStrategy) {
     this.project = project;
     this.useGlobalVersion = useGlobalVersion;
     this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
     this.commitBeforeTagging = commitBeforeTagging;
     this.errorLog = errorLog;
     this.debugLog = debugLog;
+    this.versionUpgradeStrategy = versionUpgradeStrategy;
   }
 
   @Override
@@ -112,7 +114,7 @@ public class UnleashAction implements PermalinkProjectAction {
     String version = "NaN";
     final MavenModule rootModule = this.project.getRootModule();
     if (rootModule != null && StringUtils.isNotBlank(rootModule.getVersion())) {
-      version = MavenVersionUtil.calculateNextSnapshotVersion(rootModule.getVersion());
+      version = MavenVersionUtil.calculateNextSnapshotVersion(rootModule.getVersion(), this.versionUpgradeStrategy);
     }
     return version;
   }
@@ -120,7 +122,7 @@ public class UnleashAction implements PermalinkProjectAction {
   public String computeNextDevelopmentVersion(MavenModule module) {
     String version = "NaN";
     if (module != null && StringUtils.isNotBlank(module.getVersion())) {
-      version = MavenVersionUtil.calculateNextSnapshotVersion(module.getVersion());
+      version = MavenVersionUtil.calculateNextSnapshotVersion(module.getVersion(), this.versionUpgradeStrategy);
     }
     return version;
   }

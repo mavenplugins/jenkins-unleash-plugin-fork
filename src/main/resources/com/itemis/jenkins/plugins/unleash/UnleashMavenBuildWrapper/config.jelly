@@ -38,8 +38,11 @@
         </table>
       </f:repeatable>
     </f:entry>
+    <f:entry title="Choose Goal Type" field="versionUpgradeStrategy" help="/plugin/unleash/help-projectConfig-versionUpgradeStrategy.html">
+      <f:select default="${descriptor.DEFAULT_VERSION_UPGRADE_STRATEGY}"/>
+    </f:entry>
     <f:entry title="Lock the n latest successful release builds" help="/plugin/unleash/help-projectConfig-lockReleaseBuilds.html">
-      <f:textbox name="numberOfBuildsToLock" value="${instance.numberOfBuildsToLock}" default="${descriptor.DEFAULT_NUMBER_OF_LOCKED_BUILDS}" />
+      <f:number name="numberOfBuildsToLock" value="${instance.numberOfBuildsToLock}" default="${descriptor.DEFAULT_NUMBER_OF_LOCKED_BUILDS}" />
     </f:entry>
     <f:entry title="Use Log Timestamps" help="/plugin/unleash/help-projectConfig-logTimestamps.html">
       <f:checkbox field="useLogTimestamps" value="${instance.useLogTimestamps}" default="${descriptor.useLogTimestamps}" />
@@ -56,7 +59,7 @@
       <f:checkbox field="preselectCommitBeforeTagging" value="${instance.preselectCommitBeforeTagging}"
         default="${descriptor.preselectCommitBeforeTagging}" />
     </f:entry>
-    <f:entry title="Tag Name Pattern" help="/plugin/unleash/help-projectConfig-tagNamePattern.html">
+    <f:entry title="SCM Tag Name Pattern" help="/plugin/unleash/help-projectConfig-tagNamePattern.html">
       <f:textbox field="tagNamePattern" value="${instance.tagNamePattern}" default="${descriptor.tagNamePattern}" />
     </f:entry>
     <f:entry title="SCM Message Prefix" help="/plugin/unleash/help-projectConfig-scmMessagePrefix.html">
