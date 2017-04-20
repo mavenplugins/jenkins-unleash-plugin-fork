@@ -23,6 +23,8 @@
  */
 package com.itemis.jenkins.plugins.unleash;
 
+import com.google.common.base.Strings;
+
 import hudson.model.BuildBadgeAction;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -36,6 +38,11 @@ import jenkins.model.RunAction2;
 // original authors: domi & teilo
 public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
   private Run<?, ?> run;
+  private String version;
+
+  public UnleashBadgeAction(String version) {
+    this.version = version;
+  }
 
   @Override
   public String getIconFileName() {
@@ -69,7 +76,7 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     } else {
       sb.append("Release");
     }
-    sb.append(" - ").append(getVersionNumber());
+    sb.append(" - ").append(getVersion());
     return sb.toString();
   }
 
@@ -107,12 +114,23 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     return this.run.isBuilding();
   }
 
-  public String getVersionNumber() {
+  public String getVersion() {
+    if (!Strings.isNullOrEmpty(this.version)) {
+      return this.version;
+    }
+
+    // backwards compatibility to older builds where the badge action doesn't yet carry the version attribute
     UnleashArgumentsAction args = this.run.getAction(UnleashArgumentsAction.class);
     if (args != null) {
       return args.getGlobalReleaseVersion();
-    } else { // builds by old versions of the plugin
-      return "Unknown Version";
+    }
+
+    return "Unknown Version";
+  }
+
+  public void setVersion(String version) {
+    if (!Strings.isNullOrEmpty(version)) {
+      this.version = version;
     }
   }
 }

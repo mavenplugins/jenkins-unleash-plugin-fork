@@ -4,7 +4,7 @@
   <td data="${info.build.timestampString2}">
     <j:if test="${info!=null}">
       ${info.build.timestampString}
-      (<a href="${jobBaseUrl}${job.shortUrl}lastSuccessfulReleaseBuild/">${info.action.versionNumber}</a>)
+      (<a href="${jobBaseUrl}${job.shortUrl}lastSuccessfulReleaseBuild/">${info.action.version}</a>)
     </j:if>
   </td>
 </j:jelly>

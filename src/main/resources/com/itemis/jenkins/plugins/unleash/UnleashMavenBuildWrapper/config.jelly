@@ -38,7 +38,7 @@
         </table>
       </f:repeatable>
     </f:entry>
-    <f:entry title="Choose Goal Type" field="versionUpgradeStrategy" help="/plugin/unleash/help-projectConfig-versionUpgradeStrategy.html">
+    <f:entry title="Version Upgrade Strategy" field="versionUpgradeStrategy" help="/plugin/unleash/help-projectConfig-versionUpgradeStrategy.html">
       <f:select default="${descriptor.DEFAULT_VERSION_UPGRADE_STRATEGY}"/>
     </f:entry>
     <f:entry title="Lock the n latest successful release builds" help="/plugin/unleash/help-projectConfig-lockReleaseBuilds.html">

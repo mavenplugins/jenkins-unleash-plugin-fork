@@ -62,9 +62,9 @@
     <version.httpcore>4.4.5</version.httpcore>
     <version.maven-plugin>2.9</version.maven-plugin>
     <version.ssh-credentials>1.12</version.ssh-credentials>
-    <version.unleash-maven-plugin>2.4.0</version.unleash-maven-plugin>
-    <version.unleash-utils>2.4.0</version.unleash-utils>
-    <version.unleash-scm-provider-git>2.0.2</version.unleash-scm-provider-git>
+    <version.unleash-maven-plugin>2.4.2</version.unleash-maven-plugin>
+    <version.unleash-utils>2.4.2</version.unleash-utils>
+    <version.unleash-scm-provider-git>2.0.3</version.unleash-scm-provider-git>
   </properties>
 
   <dependencies>

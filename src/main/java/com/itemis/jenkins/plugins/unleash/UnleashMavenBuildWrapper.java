@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.Model;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -44,9 +45,12 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.itemis.jenkins.plugins.unleash.util.MavenUtil;
+import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
 
 import hudson.Extension;
@@ -175,9 +179,11 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       }
     }
 
+    String releaseVersion = null;
     if (arguments != null) {
+      releaseVersion = arguments.getGlobalReleaseVersion();
       if (arguments.useGlobalReleaseVersion()) {
-        command.append(" -Dunleash.releaseVersion=").append(arguments.getGlobalReleaseVersion());
+        command.append(" -Dunleash.releaseVersion=").append(releaseVersion);
         command.append(" -Dunleash.developmentVersion=").append(arguments.getGlobalDevelopmentVersion());
       } else {
         command.append(" -Dunleash.versionUpgradeStrategy=").append(getVersionUpgradeStrategy().name());
@@ -191,11 +197,22 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         command.append(" -X");
       }
     }
-
     final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
 
+    if (releaseVersion == null) {
+      MavenModuleSet project = (MavenModuleSet) build.getProject();
+      String version = null;
+      Optional<Model> model = MavenUtil.parseModel(project.getRootModule(), project);
+      if (model.isPresent()) {
+        version = MavenUtil.parseVersion(model.get()).orNull();
+      }
+      if (StringUtils.isBlank(version)) {
+        version = project.getRootModule().getVersion();
+      }
+      releaseVersion = MavenVersionUtil.calculateReleaseVersion(version);
+    }
     build.addAction(new UnleashArgumentInterceptorAction(command.toString()));
-    build.addAction(new UnleashBadgeAction());
+    build.addAction(new UnleashBadgeAction(releaseVersion));
 
     return new UnleashEnvironment(scmEnv);
   }
@@ -390,6 +407,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
           }
         }
       }
+
       return super.tearDown(build, listener);
     }
 
