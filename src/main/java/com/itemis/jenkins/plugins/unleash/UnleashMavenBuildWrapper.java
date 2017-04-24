@@ -26,6 +26,7 @@ package com.itemis.jenkins.plugins.unleash;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -94,12 +95,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private String credentialsId;
   private int numberOfBuildsToLock = DescriptorImpl.DEFAULT_NUMBER_OF_LOCKED_BUILDS;
   private VersionUpgradeStrategy versionUpgradeStrategy = DescriptorImpl.DEFAULT_VERSION_UPGRADE_STRATEGY;
+  private List<EnvVarDescriptor> envVars = Lists.newArrayList();
 
   @DataBoundConstructor
   public UnleashMavenBuildWrapper(String goals, String profiles, String releaseArgs, boolean useLogTimestamps,
       String tagNamePattern, String scmMessagePrefix, boolean preselectUseGlobalVersion, List<HookDescriptor> hooks,
       boolean preselectAllowLocalReleaseArtifacts, boolean preselectCommitBeforeTagging, String workflowPath,
-      String credentialsId, int numberOfBuildsToLock, VersionUpgradeStrategy versionUpgradeStrategy) {
+      String credentialsId, int numberOfBuildsToLock, VersionUpgradeStrategy versionUpgradeStrategy,
+      List<EnvVarDescriptor> envVars) {
     super();
     this.goals = goals;
     this.profiles = profiles;
@@ -115,6 +118,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.credentialsId = credentialsId;
     this.numberOfBuildsToLock = numberOfBuildsToLock;
     this.versionUpgradeStrategy = versionUpgradeStrategy;
+    this.envVars = envVars;
   }
 
   @Override
@@ -155,6 +159,20 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     if (StringUtils.isNotBlank(getReleaseArgs())) {
       command.append(" -Dunleash.releaseArgs=\"").append(getReleaseArgs().trim()).append("\"");
     }
+
+    if (!this.envVars.isEmpty()) {
+      command.append("-Dunleash.releaseEnvironment=\"");
+      Iterator<EnvVarDescriptor> vars = this.envVars.iterator();
+      while (vars.hasNext()) {
+        EnvVarDescriptor var = vars.next();
+        command.append(var.getName()).append("=>").append(var.getValue());
+        if (vars.hasNext()) {
+          command.append(',');
+        }
+      }
+      command.append("\"");
+    }
+
     if (StringUtils.isNotBlank(getTagNamePattern())) {
       command.append(" -Dunleash.tagNamePattern=").append(getTagNamePattern().trim());
     }
@@ -355,6 +373,14 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
 
   public void setVersionUpgradeStrategy(VersionUpgradeStrategy versionUpgradeStrategy) {
     this.versionUpgradeStrategy = versionUpgradeStrategy;
+  }
+
+  public List<EnvVarDescriptor> getEnvVars() {
+    return this.envVars;
+  }
+
+  public void setEnvVars(List<EnvVarDescriptor> envVars) {
+    this.envVars = envVars;
   }
 
   private class UnleashEnvironment extends Environment {
