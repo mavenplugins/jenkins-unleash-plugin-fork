@@ -18,6 +18,10 @@ public final class MavenUtil {
   }
 
   public static Optional<Model> parseModel(MavenModule module, MavenModuleSet mavenModuleSet) {
+    if (module == null || mavenModuleSet == null || mavenModuleSet.getRootModule() == null) {
+      return Optional.absent();
+    }
+
     String pathToPom;
     if (mavenModuleSet.getRootModule().equals(module)) {
       pathToPom = mavenModuleSet.getRootPOM(null);

@@ -45,6 +45,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -118,7 +119,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     this.workflowPath = workflowPath;
     this.credentialsId = credentialsId;
     this.numberOfBuildsToLock = numberOfBuildsToLock;
-    this.versionUpgradeStrategy = versionUpgradeStrategy;
+    this.versionUpgradeStrategy = MoreObjects.firstNonNull(versionUpgradeStrategy, VersionUpgradeStrategy.DEFAULT);
   }
 
   @Override
@@ -371,7 +372,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   }
 
   public void setVersionUpgradeStrategy(VersionUpgradeStrategy versionUpgradeStrategy) {
-    this.versionUpgradeStrategy = versionUpgradeStrategy;
+    this.versionUpgradeStrategy = MoreObjects.firstNonNull(versionUpgradeStrategy, VersionUpgradeStrategy.DEFAULT);
   }
 
   private class UnleashEnvironment extends Environment {
