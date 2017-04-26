@@ -368,7 +368,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   }
 
   public VersionUpgradeStrategy getVersionUpgradeStrategy() {
-    return this.versionUpgradeStrategy;
+    return this.versionUpgradeStrategy != null ? this.versionUpgradeStrategy : VersionUpgradeStrategy.DEFAULT;
   }
 
   public void setVersionUpgradeStrategy(VersionUpgradeStrategy versionUpgradeStrategy) {
