@@ -84,6 +84,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   private static String ENV_VAR_SCM_USERNAME = "UNLEASH_SCM_USERNAME";
   private static String ENV_VAR_SCM_PASSWORD = "UNLEASH_SCM_PASSWORD";
   private static String ENV_VAR_SCM_SSH_PASSPHRASE = "UNLEASH_SCM_SSH_PASSPHRASE";
+  private static String ENV_VAR_SCM_SSH_PRIVATE_KEY = "UNLEASH_SCM_SSH_PRIVATE_KEY";
 
   private String goals = DescriptorImpl.DEFAULT_GOALS;
   private String profiles = DescriptorImpl.DEFAULT_PROFILES;
@@ -222,6 +223,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     String scmUsername = null;
     String scmPassword = null;
     String scmSshPassphrase = null;
+    String scmSshPrivateKey = null;
     if (StringUtils.isNotBlank(this.credentialsId)) {
       StandardUsernameCredentials credentials = CredentialsProvider.findCredentialById(this.credentialsId,
           StandardUsernameCredentials.class, build, URIRequirementBuilder.create().build());
@@ -233,6 +235,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         SSHUserPrivateKey c = (SSHUserPrivateKey) credentials;
         Secret passphrase = c.getPassphrase();
         scmSshPassphrase = passphrase != null ? passphrase.getPlainText() : null;
+        scmSshPrivateKey = c.getPrivateKey();
       }
     }
 
@@ -248,6 +251,10 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     if (scmSshPassphrase != null) {
       command.append(" -Dunleash.scmSshPassphraseEnvVar=" + ENV_VAR_SCM_SSH_PASSPHRASE);
       scmEnv.put(ENV_VAR_SCM_SSH_PASSPHRASE, scmSshPassphrase);
+    }
+    if (scmSshPrivateKey != null) {
+      command.append(" -Dunleash.scmSshPrivateKeyEnvVar=" + ENV_VAR_SCM_SSH_PRIVATE_KEY);
+      scmEnv.put(ENV_VAR_SCM_SSH_PRIVATE_KEY, scmSshPrivateKey);
     }
     return scmEnv;
   }
