@@ -24,12 +24,17 @@
 package com.itemis.jenkins.plugins.unleash;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
+import hudson.model.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Model;
 import org.kohsuke.stapler.StaplerRequest;
@@ -46,7 +51,6 @@ import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
 
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
-import hudson.model.PermalinkProjectAction;
 
 /**
  * @author Stanley Hillner
@@ -74,6 +78,15 @@ public class UnleashAction implements PermalinkProjectAction {
     this.errorLog = errorLog;
     this.debugLog = debugLog;
     this.versionUpgradeStrategy = versionUpgradeStrategy;
+  }
+
+  public List<ParameterDefinition> getParameterDefinitions() {
+    ParametersDefinitionProperty property = project.getProperty(ParametersDefinitionProperty.class);
+    List<ParameterDefinition> params = Collections.emptyList();
+    if (property != null) {
+      params = property.getParameterDefinitions();
+    }
+    return params;
   }
 
   @Override
@@ -257,11 +270,43 @@ public class UnleashAction implements PermalinkProjectAction {
     arguments.setErrorLog(requestWrapper.getBoolean("errorLog"));
     arguments.setDebugLog(requestWrapper.getBoolean("debugLog"));
 
-    if (this.project.scheduleBuild(0, new UnleashCause(), arguments)) {
+    // get the normal job parameters (adapted from
+    // hudson.model.ParametersDefinitionProperty._doBuild(StaplerRequest,
+    // StaplerResponse))
+    List<ParameterValue> params = new ArrayList<>();
+    JSONObject formData = req.getSubmittedForm();
+    JSONArray a = JSONArray.fromObject(formData.get("parameter"));
+    for (Object o : a) {
+      if (o instanceof JSONObject) {
+        JSONObject jo = (JSONObject) o;
+        if (!jo.isNullObject()) {
+          String name = jo.optString("name");
+          if (name != null) {
+            ParameterDefinition d = getParameterDefinition(name);
+            if (d == null) {
+              throw new IllegalArgumentException("No such parameter definition: " + name);
+            }
+            ParameterValue parameterValue = d.createValue(req, jo);
+            params.add(parameterValue);
+          }
+        }
+      }
+    }
+
+    if (this.project.scheduleBuild(0, new UnleashCause(), new ParametersAction(params), arguments)) {
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl());
     } else {
       resp.sendRedirect(req.getContextPath() + '/' + this.project.getUrl() + '/' + getUrlName() + "/failed");
     }
+  }
+
+  public ParameterDefinition getParameterDefinition(String name) {
+    for (ParameterDefinition pd : getParameterDefinitions()) {
+      if (pd.getName().equals(name)) {
+        return pd;
+      }
+    }
+    return null;
   }
 
   static class RequestWrapper {
