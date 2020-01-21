@@ -24,10 +24,6 @@
 package com.itemis.jenkins.plugins.unleash;
 
 import hudson.model.Action;
-import hudson.model.ParameterValue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Stanley Hillner

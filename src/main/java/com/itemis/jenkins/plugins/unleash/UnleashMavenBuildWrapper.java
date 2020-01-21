@@ -63,6 +63,8 @@ import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Item;
+import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.queue.Tasks;
@@ -200,6 +202,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       }
     }
     final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
+    replaceJobParameterReferences(build, command);
 
     if (releaseVersion == null) {
       MavenModuleSet project = (MavenModuleSet) build.getProject();
@@ -219,7 +222,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     return new UnleashEnvironment(scmEnv);
   }
 
-  private Map<String, String> updateCommandWithScmCredentials(AbstractBuild build, StringBuilder command) {
+  private Map<String, String> updateCommandWithScmCredentials(@SuppressWarnings("rawtypes") AbstractBuild build,
+      StringBuilder command) {
     String scmUsername = null;
     String scmPassword = null;
     String scmSshPassphrase = null;
@@ -257,6 +261,27 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       scmEnv.put(ENV_VAR_SCM_SSH_PRIVATE_KEY, scmSshPrivateKey);
     }
     return scmEnv;
+  }
+
+  private void replaceJobParameterReferences(@SuppressWarnings("rawtypes") AbstractBuild build, StringBuilder command) {
+    if (command != null) {
+      ParametersAction action = build.getAction(ParametersAction.class);
+      if (action != null) {
+        int start = command.indexOf("${");
+        while (start >= 0) {
+          int end = command.indexOf("}", start);
+          String name = command.substring(start + 2, end);
+          ParameterValue paramValue = action.getParameter(name);
+          if (paramValue != null) {
+            Object value = paramValue.getValue();
+            if (value != null) {
+              command.replace(start, end + 1, value.toString());
+            }
+          }
+          start = command.indexOf("${", end);
+        }
+      }
+    }
   }
 
   private boolean isReleaseBuild(@SuppressWarnings("rawtypes") AbstractBuild build) {

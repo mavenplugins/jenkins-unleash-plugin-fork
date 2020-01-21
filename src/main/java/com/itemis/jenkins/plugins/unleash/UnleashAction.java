@@ -32,9 +32,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
-import hudson.model.*;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Model;
 import org.kohsuke.stapler.StaplerRequest;
@@ -51,6 +48,13 @@ import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
 
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
+import hudson.model.ParameterDefinition;
+import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
+import hudson.model.ParametersDefinitionProperty;
+import hudson.model.PermalinkProjectAction;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * @author Stanley Hillner
@@ -81,7 +85,7 @@ public class UnleashAction implements PermalinkProjectAction {
   }
 
   public List<ParameterDefinition> getParameterDefinitions() {
-    ParametersDefinitionProperty property = project.getProperty(ParametersDefinitionProperty.class);
+    ParametersDefinitionProperty property = this.project.getProperty(ParametersDefinitionProperty.class);
     List<ParameterDefinition> params = Collections.emptyList();
     if (property != null) {
       params = property.getParameterDefinitions();
