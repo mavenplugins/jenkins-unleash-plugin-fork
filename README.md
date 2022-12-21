@@ -1,4 +1,10 @@
-# unleash-jenkins-plugin
+# Unleash Jenkins plugin
+
+# **DEPRECATED**
+
+**This plugin is deprecated.**
+The [Apache Maven unleash plugin](https://github.com/shillner/unleash-maven-plugin) is no longer being developed.
+Users should move to other maven release processes, like the [Apache Maven release plugin](https://maven.apache.org/guides/mini/guide-releasing.html).
 
 License Information:
 ====================
