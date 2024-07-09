@@ -1,11 +1,5 @@
 # Unleash Jenkins plugin
 
-# **DEPRECATED**
-
-**This plugin is deprecated.**
-The [Apache Maven unleash plugin](https://github.com/shillner/unleash-maven-plugin) is no longer being developed.
-Users should move to other maven release processes, like the [Apache Maven release plugin](https://maven.apache.org/guides/mini/guide-releasing.html).
-
 License Information:
 ====================
 This software was first published under the Eclipse Publich License v1.0 (EPL-1.0). For a better integration with the Jenkins CI server ([https://jenkins.io/](https://jenkins.io/)) and substantial parts of the software that were taken from the [M2 Release Plugin](https://wiki.jenkins-ci.org/display/JENKINS/M2+Release+Plugin), the license has been switched to MIT license.
@@ -16,7 +10,7 @@ Substantial parts of this plugin have been taken from the [M2 Release Plugin](ht
 
 Releasing The Plugin:
 =====================
-In order to release the plugin we need credentials for Github and the Jenkins-CI repository. The preferred way for releasing the plugin is to setup an unleash run on Jenkins or to perform the unleash-based release locally. In order to to this we need to clone the repository using HTTPS (in order to be able to pass Github credentials with the call), setup the Maven settings file like shown below and then call the unleash plugin and pass your Github credentials using the unleash system properties (either the env var or the direct properties):
+In order to release the plugin we need credentials for Github and the Jenkins-CI repository. The preferred way for releasing the plugin is to setup an unleash run on Jenkins or to perform the unleash-based release locally. In order to do this we need to clone the repository using HTTPS (in order to be able to pass Github credentials with the call), setup the Maven settings file like shown below and then call the unleash plugin and pass your Github credentials using the unleash system properties (either the env var or the direct properties):
 
 `mvn unleash:perform -Dunleash.scmUsername=... -Dunleash.scmPassword=...`
 
