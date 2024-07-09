@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+Provides Maven release functionality using the Unleash Maven Plugin.
+</div>

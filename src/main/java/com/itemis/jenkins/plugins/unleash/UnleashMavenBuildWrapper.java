@@ -239,7 +239,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         SSHUserPrivateKey c = (SSHUserPrivateKey) credentials;
         Secret passphrase = c.getPassphrase();
         scmSshPassphrase = passphrase != null ? passphrase.getPlainText() : null;
-        scmSshPrivateKey = c.getPrivateKey();
+        final List<String> privKeys = c.getPrivateKeys();
+        scmSshPrivateKey = privKeys.isEmpty() ? "" : privKeys.get(0);
       }
     }
 
@@ -284,6 +285,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private boolean isReleaseBuild(@SuppressWarnings("rawtypes") AbstractBuild build) {
     return build.getCause(UnleashCause.class) != null;
   }
@@ -419,8 +421,10 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       env.putAll(this.scmEnv);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
+    public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener)
+        throws IOException, InterruptedException {
       int lockedBuilds = 0;
       Result result = build.getResult();
       if (result != null && result.isBetterOrEqualTo(Result.UNSTABLE)) {
@@ -428,7 +432,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
           build.keepLog();
           lockedBuilds++;
         }
-        for (Run run : (RunList<? extends Run>) build.getProject().getBuilds()) {
+        for (@SuppressWarnings("rawtypes")
+        Run run : (RunList<? extends Run>) build.getProject().getBuilds()) {
           if (isSuccessfulReleaseBuild(run)) {
             if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock < 0
                 || lockedBuilds < UnleashMavenBuildWrapper.this.numberOfBuildsToLock) {
@@ -444,7 +449,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       return super.tearDown(build, listener);
     }
 
-    private boolean isSuccessfulReleaseBuild(Run run) {
+    private boolean isSuccessfulReleaseBuild(@SuppressWarnings("rawtypes") Run run) {
       UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
       if (badgeAction != null && !run.isBuilding()) {
         Result result = run.getResult();
@@ -544,8 +549,8 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         return new ListBoxModel();
       }
       return new StandardListBoxModel().includeEmptyValue().includeMatchingAs(
-          context instanceof hudson.model.Queue.Task ? Tasks.getAuthenticationOf((hudson.model.Queue.Task) context)
-              : ACL.SYSTEM,
+          context instanceof hudson.model.Queue.Task ? Tasks.getAuthenticationOf2((hudson.model.Queue.Task) context)
+              : ACL.SYSTEM2,
           context, StandardUsernameCredentials.class, URIRequirementBuilder.create().build(), CREDENTIALS_MATCHER);
     }
 

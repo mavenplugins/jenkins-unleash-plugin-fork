@@ -9,6 +9,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
 import com.google.common.base.Optional;
 
+import hudson.FilePath;
 import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSet;
 
@@ -32,8 +33,11 @@ public final class MavenUtil {
     Model model = null;
     InputStream modelIS = null;
     try {
-      modelIS = mavenModuleSet.getWorkspace().child(pathToPom).read();
-      model = new MavenXpp3Reader().read(modelIS);
+      final FilePath workSpace = mavenModuleSet.getSomeWorkspace();
+      if (workSpace != null) {
+        modelIS = workSpace.child(pathToPom).read();
+        model = new MavenXpp3Reader().read(modelIS);
+      }
     } catch (Throwable t) {
       // intentionally blank
     } finally {
