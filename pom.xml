@@ -1,10 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.56</version>
+    <version>3.57</version>
+    <relativePath />
   </parent>
 
   <groupId>com.itemis.jenkins.plugins</groupId>
@@ -55,7 +58,6 @@
 
   <properties>
     <java.level>8</java.level>
-    <jenkins.version>2.204.1</jenkins.version>
     <version.commons-codec>1.13</version.commons-codec>
     <version.commons-io>2.6</version.commons-io>
     <version.commons-lang3>3.9</version.commons-lang3>
@@ -66,9 +68,8 @@
     <version.maven-plugin>3.4</version.maven-plugin>
     <version.slf4j>1.7.26</version.slf4j>
     <version.ssh-credentials>1.18.1</version.ssh-credentials>
-    <version.unleash-maven-plugin>2.10.0</version.unleash-maven-plugin>
-    <version.unleash-utils>2.10.0</version.unleash-utils>
-    <version.unleash-scm-provider-git>2.3.0</version.unleash-scm-provider-git>
+    <version.unleash-maven-plugin>3.0.1</version.unleash-maven-plugin>
+    <version.unleash-scm-provider-git>3.0.1</version.unleash-scm-provider-git>
   </properties>
 
   <dependencyManagement>
@@ -128,9 +129,9 @@
       <version>${version.ssh-credentials}</version>
     </dependency>
     <dependency>
-      <groupId>com.itemis.maven.plugins</groupId>
+      <groupId>io.github.mavenplugins</groupId>
       <artifactId>unleash-utils</artifactId>
-      <version>${version.unleash-utils}</version>
+      <version>${version.unleash-maven-plugin}</version>
     </dependency>
 
     <!-- test dependencies -->
@@ -152,12 +153,12 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>com.itemis.maven.plugins</groupId>
+          <groupId>io.github.mavenplugins</groupId>
           <artifactId>unleash-maven-plugin</artifactId>
           <version>${version.unleash-maven-plugin}</version>
           <dependencies>
             <dependency>
-              <groupId>com.itemis.maven.plugins</groupId>
+              <groupId>io.github.mavenplugins</groupId>
               <artifactId>unleash-scm-provider-git</artifactId>
               <version>${version.unleash-scm-provider-git}</version>
             </dependency>
