@@ -6,13 +6,13 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.57</version>
+    <version>4.85</version>
     <relativePath />
   </parent>
 
-  <groupId>com.itemis.jenkins.plugins</groupId>
+  <groupId>io.jenkins.plugins</groupId>
   <artifactId>unleash</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Unleash Maven Plugin</name>
@@ -21,6 +21,7 @@
 
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
+    <developerConnection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/unleash-plugin</url>
     <tag>HEAD</tag>
   </scm>
@@ -41,6 +42,13 @@
       <organizationUrl>https://itemis.com/</organizationUrl>
       <timezone>1</timezone>
     </developer>
+    <developer>
+      <id>mhoffrog</id>
+      <name>Markus Hoffrogge</name>
+      <organization>Rockwell Automation</organization>
+      <organizationUrl>https://rockwellautomation.com</organizationUrl>
+      <timezone>1</timezone>
+    </developer>
   </developers>
 
   <repositories>
@@ -57,95 +65,49 @@
   </pluginRepositories>
 
   <properties>
-    <java.level>8</java.level>
-    <version.commons-codec>1.13</version.commons-codec>
-    <version.commons-io>2.6</version.commons-io>
-    <version.commons-lang3>3.9</version.commons-lang3>
-    <version.credentials-plugin>2.3.1</version.credentials-plugin>
-    <version.findbugs-maven-plugin>3.0.5</version.findbugs-maven-plugin>
-    <version.httpclient>4.5.11</version.httpclient>
-    <version.httpcore>4.4.13</version.httpcore>
-    <version.maven-plugin>3.4</version.maven-plugin>
-    <version.slf4j>1.7.26</version.slf4j>
-    <version.ssh-credentials>1.18.1</version.ssh-credentials>
+    <jenkins.version>2.440.3</jenkins.version>
     <version.unleash-maven-plugin>3.0.1</version.unleash-maven-plugin>
     <version.unleash-scm-provider-git>3.0.1</version.unleash-scm-provider-git>
+
+    <!-- Overrides to resolve RequireUpperBoundDeps failure -->
+    <version.javax.annotation-api>1.3.2</version.javax.annotation-api>
+
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons-codec}</version>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.440.x</artifactId>
+        <version>3180.vc1df4d5b_8097</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${version.commons-io}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${version.commons-lang3}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>log4j-over-slf4j</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${version.slf4j}</version>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>${version.javax.annotation-api}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>credentials</artifactId>
-      <version>${version.credentials-plugin}</version>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>maven-plugin</artifactId>
-      <version>${version.maven-plugin}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>ssh-credentials</artifactId>
-      <version>${version.ssh-credentials}</version>
     </dependency>
     <dependency>
       <groupId>io.github.mavenplugins</groupId>
       <artifactId>unleash-utils</artifactId>
       <version>${version.unleash-maven-plugin}</version>
-    </dependency>
-
-    <!-- test dependencies -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${version.httpclient}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>${version.httpcore}</version>
-      <scope>test</scope>
+      <!-- Exclude any transient dependency, since we require flat enum -->
+      <!-- com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy only -->
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
@@ -163,11 +125,6 @@
               <version>${version.unleash-scm-provider-git}</version>
             </dependency>
           </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>${version.findbugs-maven-plugin}</version>
         </plugin>
       </plugins>
     </pluginManagement>
