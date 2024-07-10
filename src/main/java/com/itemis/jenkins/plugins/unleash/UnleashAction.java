@@ -36,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Model;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.verb.POST;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -53,6 +54,10 @@ import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.PermalinkProjectAction;
+import hudson.security.Permission;
+import hudson.security.PermissionGroup;
+import hudson.security.PermissionScope;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -63,7 +68,17 @@ import net.sf.json.JSONObject;
 // The class still contains substantial parts of the original implementation
 // original authors: James Nord & Dominik Bartholdi
 public class UnleashAction implements PermalinkProjectAction {
+  @SuppressWarnings("unused")
   private static final Logger LOGGER = Logger.getLogger(UnleashAction.class.getName());
+
+  public static final PermissionGroup PERMISSIONS = new PermissionGroup(UnleashAction.class,
+      Messages._UnleashAction_PermissionsTitle());
+
+  /**
+   * Permission to trigger release builds.
+   */
+  public static final Permission RELEASE_PERMISSION = new Permission(PERMISSIONS, "Release",
+      Messages._UnleashAction_ReleasePermission_Description(), Jenkins.ADMINISTER, PermissionScope.ITEM);
 
   private MavenModuleSet project;
   private boolean useGlobalVersion;
@@ -254,7 +269,11 @@ public class UnleashAction implements PermalinkProjectAction {
     return modules;
   }
 
+  @POST
   public void doSubmit(StaplerRequest req, StaplerResponse resp) throws IOException, ServletException {
+    // verify permission
+    this.project.checkPermission(RELEASE_PERMISSION);
+
     RequestWrapper requestWrapper = new RequestWrapper(req);
 
     UnleashArgumentsAction arguments = new UnleashArgumentsAction();
@@ -321,7 +340,7 @@ public class UnleashAction implements PermalinkProjectAction {
     }
 
     private String getString(String key) throws javax.servlet.ServletException, java.io.IOException {
-      Map parameters = this.request.getParameterMap();
+      Map<String, ?> parameters = this.request.getParameterMap();
       Object o = parameters.get(key);
       if (o != null) {
         if (o instanceof String) {
@@ -337,7 +356,7 @@ public class UnleashAction implements PermalinkProjectAction {
     }
 
     private boolean getBoolean(String key) {
-      Map parameters = this.request.getParameterMap();
+      Map<String, ?> parameters = this.request.getParameterMap();
       String flag = null;
 
       Object o = parameters.get(key);

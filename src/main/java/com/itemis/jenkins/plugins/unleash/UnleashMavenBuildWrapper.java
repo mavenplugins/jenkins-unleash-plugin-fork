@@ -35,6 +35,7 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.verb.POST;
 
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHUserPrivateKey;
 import com.cloudbees.plugins.credentials.CredentialsMatcher;
@@ -544,6 +545,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     }
 
     // TODO adapt to be able to use SSH credentials also!
+    @POST
     public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Item context, @QueryParameter String credentialsId) {
       if (context == null || !context.hasPermission(Item.CONFIGURE)) {
         return new ListBoxModel();
@@ -554,6 +556,9 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
           context, StandardUsernameCredentials.class, URIRequirementBuilder.create().build(), CREDENTIALS_MATCHER);
     }
 
+    @POST
+    // Suppress issue raised by Jenkins security-scan:
+    // lgtm[jenkins/no-permission-check]
     public ListBoxModel doFillVersionUpgradeStrategyItems() {
       ListBoxModel items = new ListBoxModel();
       for (VersionUpgradeStrategy strategy : VersionUpgradeStrategy.values()) {
