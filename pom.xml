@@ -16,14 +16,15 @@
   <packaging>hpi</packaging>
 
   <name>Unleash Maven Plugin</name>
-  <description>Provides Maven release functionality using the Unleash Maven Plugin.</description>
+  <!-- Description moved to src/main/resources/index.jelly according to JenkinsCI convention -->
+  <!-- <description>Provides Maven release functionality using the Unleash Maven Plugin.</description> -->
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Unleash+Plugin</url>
 
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
     <developerConnection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/unleash-plugin</url>
-    <tag>HEAD</tag>
+    <tag>${scmTag}</tag>
   </scm>
 
   <licenses>
@@ -83,6 +84,7 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <!-- Additional explicit deps required to resolve RequireUpperBoundDeps failure -->
       <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>
