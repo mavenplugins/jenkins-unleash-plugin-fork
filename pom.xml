@@ -18,7 +18,7 @@
   <name>Unleash Maven Plugin</name>
   <!-- Description moved to src/main/resources/index.jelly according to JenkinsCI convention -->
   <!-- <description>Provides Maven release functionality using the Unleash Maven Plugin.</description> -->
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Unleash+Plugin</url>
+  <url>https://github.com/jenkinsci/unleash-plugin</url>
 
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
@@ -72,7 +72,6 @@
 
     <!-- Overrides to resolve RequireUpperBoundDeps failure -->
     <version.javax.annotation-api>1.3.2</version.javax.annotation-api>
-
   </properties>
 
   <dependencyManagement>
@@ -84,7 +83,7 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
-      <!-- Additional explicit deps required to resolve RequireUpperBoundDeps failure -->
+      <!-- Additional explicit declarations required to resolve RequireUpperBoundDeps failure -->
       <dependency>
         <groupId>javax.annotation</groupId>
         <artifactId>javax.annotation-api</artifactId>
@@ -102,12 +101,12 @@
       <groupId>io.github.mavenplugins</groupId>
       <artifactId>unleash-utils</artifactId>
       <version>${version.unleash-maven-plugin}</version>
-      <!-- Exclude any transient dependency, since we require flat enum -->
-      <!-- com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy only -->
+      <!-- Exclude guava, since this is provided by JenkinsCI -->
+      <!-- RequireUpperBoundDeps failure otherwise! -->
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
