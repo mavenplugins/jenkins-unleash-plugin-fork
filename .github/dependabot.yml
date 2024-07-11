@@ -6,6 +6,10 @@ updates:
   directory: /
   schedule:
     interval: monthly
+  ignore:
+    # Ignore some updates to the 'io.github.mavenplugins:unleash-utils' artifact
+    - dependency-name: "io.github.mavenplugins:unleash-utils"
+      versions: ["3.0.2"]
 - package-ecosystem: github-actions
   directory: /
   schedule:
