@@ -33,4 +33,4 @@ OR
 
 Note that you can also operate on a local copy of the repository cloned using SSH. In this case you will have to provide your SSH private key as well as your passphrase using the respective unleash system properties. There is also some basic SSH agent support available.
 
-[Official Jenkins CI release description](https://wiki.jenkins.io/display/JENKINS/Hosting+Plugins#HostingPlugins-Releasingtojenkins-ci.org)
+[Official Jenkins CI release description](https://www.jenkins.io/doc/developer/publishing/releasing/)
