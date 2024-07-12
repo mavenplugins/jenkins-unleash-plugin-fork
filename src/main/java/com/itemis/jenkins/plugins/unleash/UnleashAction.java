@@ -81,15 +81,26 @@ public class UnleashAction implements PermalinkProjectAction {
       Messages._UnleashAction_ReleasePermission_Description(), Jenkins.ADMINISTER, PermissionScope.ITEM);
 
   private MavenModuleSet project;
+
   private boolean useGlobalVersion;
+
   private boolean allowLocalReleaseArtifacts;
+
   private boolean commitBeforeTagging;
+
   private boolean errorLog;
+
   private boolean debugLog;
+
   private VersionUpgradeStrategy versionUpgradeStrategy;
 
+  private String tagNamePattern;
+
+  private String scmMessagePrefix;
+
   public UnleashAction(MavenModuleSet project, boolean useGlobalVersion, boolean allowLocalReleaseArtifacts,
-      boolean commitBeforeTagging, boolean errorLog, boolean debugLog, VersionUpgradeStrategy versionUpgradeStrategy) {
+      boolean commitBeforeTagging, boolean errorLog, boolean debugLog, VersionUpgradeStrategy versionUpgradeStrategy,
+      String tagNamePattern, String scmMessagePrefix) {
     this.project = project;
     this.useGlobalVersion = useGlobalVersion;
     this.allowLocalReleaseArtifacts = allowLocalReleaseArtifacts;
@@ -97,6 +108,8 @@ public class UnleashAction implements PermalinkProjectAction {
     this.errorLog = errorLog;
     this.debugLog = debugLog;
     this.versionUpgradeStrategy = versionUpgradeStrategy;
+    this.tagNamePattern = tagNamePattern;
+    this.scmMessagePrefix = scmMessagePrefix;
   }
 
   public List<ParameterDefinition> getParameterDefinitions() {
@@ -263,6 +276,22 @@ public class UnleashAction implements PermalinkProjectAction {
     this.debugLog = debugLog;
   }
 
+  public String getTagNamePattern() {
+    return this.tagNamePattern;
+  }
+
+  public void setTagNamePattern(String tagNamePattern) {
+    this.tagNamePattern = tagNamePattern;
+  }
+
+  public String getScmMessagePrefix() {
+    return this.scmMessagePrefix;
+  }
+
+  public void setScmMessagePrefix(String scmMessagePrefix) {
+    this.scmMessagePrefix = scmMessagePrefix;
+  }
+
   public List<MavenModule> getAllMavenModules() {
     List<MavenModule> modules = Lists.newArrayList();
     modules.addAll(this.project.getModules());
@@ -292,6 +321,8 @@ public class UnleashAction implements PermalinkProjectAction {
     arguments.setCommitBeforeTagging(requestWrapper.getBoolean("commitBeforeTagging"));
     arguments.setErrorLog(requestWrapper.getBoolean("errorLog"));
     arguments.setDebugLog(requestWrapper.getBoolean("debugLog"));
+    arguments.setTagNamePattern(requestWrapper.getString("tagNamePattern"));
+    arguments.setScmMessagePrefix(requestWrapper.getString("scmMessagePrefix"));
 
     // get the normal job parameters (adapted from
     // hudson.model.ParametersDefinitionProperty._doBuild(StaplerRequest,

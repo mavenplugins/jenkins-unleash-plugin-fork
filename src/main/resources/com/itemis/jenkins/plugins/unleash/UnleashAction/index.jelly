@@ -38,6 +38,14 @@
           </f:radioBlock>
         </f:section>
 
+        <f:section title="SCM">
+         <f:entry title="SCM Tag Name Pattern" help="/plugin/unleash/help-projectConfig-tagNamePattern.html">
+            <f:textbox name="tagNamePattern" value="${it.getTagNamePattern()}" />
+         </f:entry>
+         <f:entry title="SCM Message Prefix" help="/plugin/unleash/help-projectConfig-scmMessagePrefix.html">
+            <f:textbox name="scmMessagePrefix" value="${it.getScmMessagePrefix()}" />
+          </f:entry>
+        </f:section>
         <f:section title="Advanced">
           <f:entry title="Allow Local Release Artifacts" help="/plugin/unleash/help-actionUnleash-localReleaseArtifacts.html">
             <f:checkbox field="allowLocalReleaseArtifacts" name="allowLocalReleaseArtifacts" checked="${it.isAllowLocalReleaseArtifacts()}"/>

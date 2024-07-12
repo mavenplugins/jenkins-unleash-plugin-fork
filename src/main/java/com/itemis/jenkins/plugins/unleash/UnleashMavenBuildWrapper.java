@@ -85,23 +85,39 @@ import net.sf.json.JSONObject;
 // original authors: James Nord & Dominik Bartholdi
 public class UnleashMavenBuildWrapper extends BuildWrapper {
   private static String ENV_VAR_SCM_USERNAME = "UNLEASH_SCM_USERNAME";
+
   private static String ENV_VAR_SCM_PASSWORD = "UNLEASH_SCM_PASSWORD";
+
   private static String ENV_VAR_SCM_SSH_PASSPHRASE = "UNLEASH_SCM_SSH_PASSPHRASE";
+
   private static String ENV_VAR_SCM_SSH_PRIVATE_KEY = "UNLEASH_SCM_SSH_PRIVATE_KEY";
 
   private String goals = DescriptorImpl.DEFAULT_GOALS;
+
   private String profiles = DescriptorImpl.DEFAULT_PROFILES;
+
   private String releaseArgs = DescriptorImpl.DEFAULT_RELEASE_ARGS;
+
   private List<HookDescriptor> hooks = Lists.newArrayList();
+
   private boolean useLogTimestamps = DescriptorImpl.DEFAULT_USE_LOG_TIMESTAMPS;
+
   private String tagNamePattern = DescriptorImpl.DEFAULT_TAG_NAME_PATTERN;
+
   private String scmMessagePrefix = DescriptorImpl.DEFAULT_SCM_MESSAGE_PREFIX;
+
   private boolean preselectUseGlobalVersion = DescriptorImpl.DEFAULT_PRESELECT_USE_GLOBAL_VERSION;
+
   private boolean preselectAllowLocalReleaseArtifacts = DescriptorImpl.DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
+
   private boolean preselectCommitBeforeTagging = DescriptorImpl.DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING;
+
   private String workflowPath = DescriptorImpl.DEFAULT_WORKFLOW_PATH;
+
   private String credentialsId;
+
   private int numberOfBuildsToLock = DescriptorImpl.DEFAULT_NUMBER_OF_LOCKED_BUILDS;
+
   private VersionUpgradeStrategy versionUpgradeStrategy = DescriptorImpl.DEFAULT_VERSION_UPGRADE_STRATEGY;
 
   @DataBoundConstructor
@@ -164,12 +180,6 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
     if (StringUtils.isNotBlank(getReleaseArgs())) {
       command.append(" -Dunleash.releaseArgs=\"").append(getReleaseArgs().trim()).append("\"");
     }
-    if (StringUtils.isNotBlank(getTagNamePattern())) {
-      command.append(" -Dunleash.tagNamePattern=").append(getTagNamePattern().trim());
-    }
-    if (StringUtils.isNotBlank(getScmMessagePrefix())) {
-      command.append(" -Dunleash.scmMessagePrefix=").append(getScmMessagePrefix().trim());
-    }
     command.append(" -DenableLogTimestamps=").append(isUseLogTimestamps());
 
     if (this.hooks != null) {
@@ -184,8 +194,12 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       }
     }
 
+    String tagNamePattern = getTagNamePattern();
+    String scmMessagePrefix = getScmMessagePrefix();
     String releaseVersion = null;
     if (arguments != null) {
+      tagNamePattern = arguments.getTagNamePattern();
+      scmMessagePrefix = arguments.getScmMessagePrefix();
       releaseVersion = arguments.getGlobalReleaseVersion();
       if (arguments.useGlobalReleaseVersion()) {
         command.append(" -Dunleash.releaseVersion=").append(releaseVersion);
@@ -202,6 +216,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         command.append(" -X");
       }
     }
+    if (StringUtils.isNotBlank(tagNamePattern)) {
+      command.append(" -Dunleash.tagNamePattern=\"").append(tagNamePattern.trim()).append("\"");
+    }
+    if (StringUtils.isNotBlank(scmMessagePrefix)) {
+      command.append(" -Dunleash.scmMessagePrefix=\"").append(scmMessagePrefix.trim()).append("\"");
+    }
+
     final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
     replaceJobParameterReferences(build, command);
 
@@ -351,7 +372,7 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   public Collection<? extends Action> getProjectActions(@SuppressWarnings("rawtypes") AbstractProject job) {
     return Collections.singleton(new UnleashAction((MavenModuleSet) job, this.preselectUseGlobalVersion,
         this.preselectAllowLocalReleaseArtifacts, this.preselectCommitBeforeTagging, false, false,
-        this.versionUpgradeStrategy));
+        this.versionUpgradeStrategy, getTagNamePattern(), getScmMessagePrefix()));
   }
 
   public List<HookDescriptor> getHooks() {
@@ -465,16 +486,27 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
   @Extension
   public static class DescriptorImpl extends BuildWrapperDescriptor {
     public static final String DEFAULT_GOALS = "unleash:perform";
+
     public static final String DEFAULT_PROFILES = "";
+
     public static final String DEFAULT_RELEASE_ARGS = "";
+
     public static final boolean DEFAULT_USE_LOG_TIMESTAMPS = true;
+
     public static final String DEFAULT_TAG_NAME_PATTERN = "@{project.version}";
+
     public static final String DEFAULT_SCM_MESSAGE_PREFIX = "[unleash-maven-plugin]";
+
     public static final boolean DEFAULT_PRESELECT_USE_GLOBAL_VERSION = false;
+
     public static final boolean DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS = true;
+
     public static final boolean DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING = false;
+
     public static final String DEFAULT_WORKFLOW_PATH = "";
+
     public static final int DEFAULT_NUMBER_OF_LOCKED_BUILDS = 1;
+
     public static final VersionUpgradeStrategy DEFAULT_VERSION_UPGRADE_STRATEGY = VersionUpgradeStrategy.DEFAULT;
 
     private static final CredentialsMatcher CREDENTIALS_MATCHER = CredentialsMatchers.anyOf(
@@ -482,9 +514,13 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
         CredentialsMatchers.instanceOf(SSHUserPrivateKey.class));
 
     private boolean useLogTimestamps = DEFAULT_USE_LOG_TIMESTAMPS;
+
     private boolean preselectAllowLocalReleaseArtifacts = DEFAULT_PRESELECT_ALLOW_LOCAL_RELEASE_ARTIFACTS;
+
     private boolean preselectCommitBeforeTagging = DEFAULT_PRESELECT_COMMIT_BEFORE_TAGGING;
+
     private String tagNamePattern = DEFAULT_TAG_NAME_PATTERN;
+
     private String scmMessagePrefix = DEFAULT_SCM_MESSAGE_PREFIX;
 
     public void setUseLogTimestamps(boolean useLogTimestamps) {
