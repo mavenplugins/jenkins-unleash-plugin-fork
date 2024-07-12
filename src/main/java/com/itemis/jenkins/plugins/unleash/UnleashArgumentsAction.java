@@ -33,12 +33,22 @@ import hudson.model.Action;
 // original authors: teilo
 public class UnleashArgumentsAction implements Action {
   private String globalReleaseVersion;
+
   private String globalDevelopmentVersion;
+
   private boolean useGlobalReleaseVersion;
+
   private boolean allowLocalReleaseArtifacts;
+
   private boolean commitBeforeTagging;
+
   private boolean errorLog;
+
   private boolean debugLog;
+
+  private String tagNamePattern;
+
+  private String scmMessagePrefix;
 
   @Override
   public String getIconFileName() {
@@ -110,4 +120,21 @@ public class UnleashArgumentsAction implements Action {
   public void setDebugLog(boolean debugLog) {
     this.debugLog = debugLog;
   }
+
+  public String getTagNamePattern() {
+    return this.tagNamePattern;
+  }
+
+  public void setTagNamePattern(String tagNamePattern) {
+    this.tagNamePattern = tagNamePattern;
+  }
+
+  public String getScmMessagePrefix() {
+    return this.scmMessagePrefix;
+  }
+
+  public void setScmMessagePrefix(String scmMessagePrefix) {
+    this.scmMessagePrefix = scmMessagePrefix;
+  }
+
 }
