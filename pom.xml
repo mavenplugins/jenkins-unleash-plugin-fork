@@ -42,6 +42,9 @@
       <organization>itemis AG</organization>
       <organizationUrl>https://itemis.com/</organizationUrl>
       <timezone>1</timezone>
+      <roles>
+        <role>creator (inactive)</role>
+      </roles>
     </developer>
     <developer>
       <id>mhoffrog</id>
@@ -49,6 +52,9 @@
       <organization>Rockwell Automation</organization>
       <organizationUrl>https://rockwellautomation.com</organizationUrl>
       <timezone>1</timezone>
+      <roles>
+        <role>maintainer</role>
+      </roles>
     </developer>
   </developers>
 
