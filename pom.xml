@@ -1,20 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.56</version>
+    <version>4.31</version>
+    <relativePath />
   </parent>
 
   <groupId>com.itemis.jenkins.plugins</groupId>
   <artifactId>unleash</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>2.5.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Unleash Maven Plugin</name>
   <description>Provides Maven release functionality using the Unleash Maven Plugin.</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Unleash+Plugin</url>
+  <url>https://github.com/jenkinsci/unleash-plugin</url>
 
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/unleash-plugin.git</connection>
@@ -37,6 +40,19 @@
       <organization>itemis AG</organization>
       <organizationUrl>https://itemis.com/</organizationUrl>
       <timezone>1</timezone>
+      <roles>
+        <role>creator (inactive)</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mhoffrog</id>
+      <name>Markus Hoffrogge</name>
+      <organization>Rockwell Automation</organization>
+      <organizationUrl>https://rockwellautomation.com</organizationUrl>
+      <timezone>1</timezone>
+      <roles>
+        <role>maintainer</role>
+      </roles>
     </developer>
   </developers>
 
@@ -55,96 +71,57 @@
 
   <properties>
     <java.level>8</java.level>
-    <jenkins.version>2.204.1</jenkins.version>
-    <version.commons-codec>1.13</version.commons-codec>
-    <version.commons-io>2.6</version.commons-io>
-    <version.commons-lang3>3.9</version.commons-lang3>
-    <version.credentials-plugin>2.3.1</version.credentials-plugin>
-    <version.findbugs-maven-plugin>3.0.5</version.findbugs-maven-plugin>
-    <version.httpclient>4.5.11</version.httpclient>
-    <version.httpcore>4.4.13</version.httpcore>
-    <version.maven-plugin>3.4</version.maven-plugin>
-    <version.slf4j>1.7.26</version.slf4j>
-    <version.ssh-credentials>1.18.1</version.ssh-credentials>
-    <version.unleash-maven-plugin>2.10.0</version.unleash-maven-plugin>
-    <version.unleash-utils>2.10.0</version.unleash-utils>
-    <version.unleash-scm-provider-git>2.3.0</version.unleash-scm-provider-git>
+    <jenkins.version>2.308</jenkins.version>
+    <version.maven-plugin>3.15.1</version.maven-plugin>
+    <version.unleash-maven-plugin>3.0.1</version.unleash-maven-plugin>
+    <version.unleash-scm-provider-git>3.0.1</version.unleash-scm-provider-git>
+    <version.maven-toolchains-plugin>3.1.0</version.maven-toolchains-plugin>
+
+    <!-- Overrides to resolve RequireUpperBoundDeps failure -->
+    <version.commons-net>3.8.0</version.commons-net>
+    <!-- Required to comply with transient dependency of unleash-maven-plugin -->
+    <version.guava>23.0</version.guava>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons-codec}</version>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.303.x</artifactId>
+        <version>1008.vb9e22885c9cf</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <!-- Additional explicit declarations required to resolve RequireUpperBoundDeps failure -->
+      <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>${version.commons-net}</version>
       </dependency>
       <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${version.commons-io}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${version.commons-lang3}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>log4j-over-slf4j</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${version.slf4j}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${version.slf4j}</version>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${version.guava}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>credentials</artifactId>
-      <version>${version.credentials-plugin}</version>
-    </dependency>
-    <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>maven-plugin</artifactId>
       <version>${version.maven-plugin}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>ssh-credentials</artifactId>
-      <version>${version.ssh-credentials}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.itemis.maven.plugins</groupId>
+      <groupId>io.github.mavenplugins</groupId>
       <artifactId>unleash-utils</artifactId>
-      <version>${version.unleash-utils}</version>
-    </dependency>
-
-    <!-- test dependencies -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${version.httpclient}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>${version.httpcore}</version>
-      <scope>test</scope>
+      <version>${version.unleash-maven-plugin}</version>
     </dependency>
   </dependencies>
 
@@ -152,23 +129,53 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>com.itemis.maven.plugins</groupId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-toolchains-plugin</artifactId>
+          <version>${version.maven-toolchains-plugin}</version>
+        </plugin>
+        <plugin>
+          <groupId>io.github.mavenplugins</groupId>
           <artifactId>unleash-maven-plugin</artifactId>
           <version>${version.unleash-maven-plugin}</version>
           <dependencies>
             <dependency>
-              <groupId>com.itemis.maven.plugins</groupId>
+              <groupId>io.github.mavenplugins</groupId>
               <artifactId>unleash-scm-provider-git</artifactId>
               <version>${version.unleash-scm-provider-git}</version>
             </dependency>
           </dependencies>
         </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>${version.findbugs-maven-plugin}</version>
-        </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-toolchains-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>toolchain</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <toolchains>
+            <jdk>
+              <version>${java.level}</version>
+            </jdk>
+          </toolchains>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- Enforce release not being set since javac 8 does not support this option! -->
+          <release combine.self="override"></release>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
