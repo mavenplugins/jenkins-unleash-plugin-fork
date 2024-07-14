@@ -2,7 +2,20 @@
 
 This is a Jenkins Build Wrapper for Maven Jobs. It enables you to
 perform Maven releases using the
-[unleash-maven-plugin](https://github.com/mavenplugins/unleash-maven-plugin).
+[Apache Maven Unleash Plugin](https://github.com/mavenplugins/unleash-maven-plugin).<br>
+That plugin is providing significant advantage for a Maven release process versus the original Maven release plugin like:
+- Checking for SNAPSHOT dependencies
+- Rolling back previous step transactions - like SCM commits - in case of a release process step failing
+- CDI based custom extendable default workflows
+
+See unleash-maven-plugin [Wiki](https://github.com/mavenplugins/unleash-maven-plugin/wiki) for details.
+
+# 🚀 Dev Continued - Java 8, 11, 17, 21 Ready 🚀 
+
+This plugin has **recovered** from deprecation tagged by 21-Dec-2022 since
+the [Apache Maven Unleash Plugin](https://github.com/mavenplugins/unleash-maven-plugin) did continue to be actively maintained.
+That plugin did move by a new `groupId` to Maven coordinate `io.github.mavenplugins:unleash-maven-plugin`.<br>
+It is working seamlessly for Maven >= 3.3.9 on Java 8, 11, 17 and 21 since unleash-maven-plugin version 3.0.0.
 
 # How To Use The Plugin?
 
