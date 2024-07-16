@@ -17,12 +17,14 @@ That plugin is providing significant advantage for a Maven release process versu
 
 See unleash-maven-plugin [Wiki](https://github.com/mavenplugins/unleash-maven-plugin/wiki) for details.
 
+
 # 🚀 Dev Continued - Java 8, 11, 17, 21 Ready 🚀 
 
 This plugin has **recovered** from deprecation tagged by 21-Dec-2022 since
 the [Apache Maven Unleash Plugin](https://github.com/mavenplugins/unleash-maven-plugin) did continue to be actively maintained.
 That plugin did move by a new `groupId` to Maven coordinate `io.github.mavenplugins:unleash-maven-plugin`.<br>
 It is working seamlessly for Maven >= 3.3.9 on Java 8, 11, 17 and 21 since unleash-maven-plugin version 3.0.0.
+
 
 # How To Use The Plugin?
 
@@ -85,6 +87,7 @@ failed releases.
 Finally there are some ListView columns:  
 ![](docs/images/90_job_list_view_columns.png)
 
+
 # Support
 
 Issues around this plugin are tracked in the Jenkins Issue Tracker. To
@@ -92,9 +95,16 @@ browse open issues please visit [this
 page](https://issues.jenkins-ci.org/secure/IssueNavigator.jspa?mode=hide&reset=true&jqlQuery=project+%3D+JENKINS+AND+status+in+(Open,+%22In+Progress%22,+Reopened)+AND+component+%3D+unleash-plugin).
 There you can also file new ones if necessary.
 
-General information about the usage of the Maven plugin can be found
-here:
-[unleash-maven-plugin](https://github.com/mavenplugins/unleash-maven-plugin).
+### Report an Issue
+
+Report an issue for this plugin via [Report an Issue for the Jenkins Unleash Plugin](https://www.jenkins.io/participate/report-issue/redirect/#21681)
+
+### Info on Unleash Maven Plugin
+
+General information about the usage of the Unleash Maven Plugin can be found here:
+- [Unleash Maven Plugin Wiki](https://github.com/mavenplugins/unleash-maven-plugin/wiki/)
+- [Unleash Maven Plugin on GitHub](https://github.com/mavenplugins/unleash-maven-plugin/)
+
 
 # Copyright Information
 
@@ -103,6 +113,7 @@ Release Plugin. It served as a base for getting started since the
 feature set was very similar.  
 Please find further copyright notes in the source code.
 
-# Version History
+
+# Change Log
 
 See [Releases](https://github.com/jenkinsci/unleash-plugin/releases)
