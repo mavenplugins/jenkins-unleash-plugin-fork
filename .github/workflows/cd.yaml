@@ -3,6 +3,14 @@
 name: cd
 on:
   workflow_dispatch:
+    inputs:
+      validate_only:
+        required: false
+        type: boolean
+        description: |
+          Validate with release drafter only
+          => Skip release job
+        default: false
   check_run:
     types:
       - completed
@@ -14,7 +22,11 @@ permissions:
 jobs:
   maven-cd:
     #uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v1
-    uses: mhoffrog/jenkins-infra.github-reusable-workflows/.github/workflows/maven-cd.yml@feature/maven_cd__manual_input_validate_only
+    uses: mhoffrog/jenkins-infra.github-reusable-workflows/.github/workflows/maven-cd.yml@feature/maven_cd__input_validate_only
+    with:
+      # 1. Consider validate_only input from manual triggers 
+      # 2. Let check_run triggers skip the release job in any case
+      validate_only: ${{ inputs.validate_only == true || github.event_name == 'check_run' }}
     secrets:
       MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
       MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
