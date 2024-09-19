@@ -51,6 +51,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.itemis.jenkins.plugins.unleash.util.BuildUtil;
 import com.itemis.jenkins.plugins.unleash.util.MavenUtil;
 import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
 import com.itemis.maven.plugins.unleash.util.VersionUpgradeStrategy;
@@ -66,14 +67,11 @@ import hudson.model.BuildListener;
 import hudson.model.Item;
 import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
-import hudson.model.Result;
-import hudson.model.Run;
 import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.ListBoxModel;
-import hudson.util.RunList;
 import hudson.util.Secret;
 import net.sf.json.JSONObject;
 
@@ -447,44 +445,15 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       env.putAll(this.scmEnv);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean tearDown(@SuppressWarnings("rawtypes") AbstractBuild build, BuildListener listener)
         throws IOException, InterruptedException {
-      int lockedBuilds = 0;
-      Result result = build.getResult();
-      if (result != null && result.isBetterOrEqualTo(Result.UNSTABLE)) {
-        if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock != 0) {
-          build.keepLog();
-          lockedBuilds++;
-        }
-        for (@SuppressWarnings("rawtypes")
-        Run run : (RunList<? extends Run>) build.getProject().getBuilds()) {
-          if (isSuccessfulReleaseBuild(run)) {
-            if (UnleashMavenBuildWrapper.this.numberOfBuildsToLock < 0
-                || lockedBuilds < UnleashMavenBuildWrapper.this.numberOfBuildsToLock) {
-              run.keepLog();
-              lockedBuilds++;
-            } else {
-              run.keepLog(false);
-            }
-          }
-        }
-      }
+
+      BuildUtil.lockSucceededReleaseBuilds(build, UnleashMavenBuildWrapper.this.numberOfBuildsToLock);
 
       return super.tearDown(build, listener);
     }
 
-    private boolean isSuccessfulReleaseBuild(@SuppressWarnings("rawtypes") Run run) {
-      UnleashBadgeAction badgeAction = run.getAction(UnleashBadgeAction.class);
-      if (badgeAction != null && !run.isBuilding()) {
-        Result result = run.getResult();
-        if (result != null && result.isBetterOrEqualTo(Result.UNSTABLE)) {
-          return true;
-        }
-      }
-      return false;
-    }
   }
 
   @Extension

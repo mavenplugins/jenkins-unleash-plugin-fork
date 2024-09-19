@@ -37,11 +37,27 @@ import jenkins.model.RunAction2;
 // The class still contains substantial parts of the original implementation
 // original authors: domi & teilo
 public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
+
+  public static final String UNKNWON_VERSION = "Unknown Version";
+
+  // Tooltip prefixes
+  public static final String TT_PREFIX_SEPARATOR = " - ";
+  public static final String RELEASE_TT_PREFIX = "Release" + TT_PREFIX_SEPARATOR;
+  public static final String DRYRUN_TT_PREFIX = "Dryrun" + TT_PREFIX_SEPARATOR;
+  public static final String FAILED_RELEASE_TT_PREFIX = "Failed release" + TT_PREFIX_SEPARATOR;
+  public static final String FAILED_DRYRUN_TT_PREFIX = "Failed dryrun" + TT_PREFIX_SEPARATOR;
+
   private Run<?, ?> run;
   private String version;
+  private boolean isDryRun;
 
   public UnleashBadgeAction(String version) {
+    this(version, false);
+  }
+
+  public UnleashBadgeAction(String version, boolean isDryRun) {
     this.version = version;
+    this.isDryRun = isDryRun;
   }
 
   @Override
@@ -72,15 +88,23 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
   public String getTooltipText() {
     StringBuilder sb = new StringBuilder();
     if (isFailedBuild()) {
-      sb.append("Failed release");
+      sb.append(isDryRun() ? FAILED_DRYRUN_TT_PREFIX : FAILED_RELEASE_TT_PREFIX);
     } else {
-      sb.append("Release");
+      sb.append(isDryRun() ? DRYRUN_TT_PREFIX : RELEASE_TT_PREFIX);
     }
-    sb.append(" - ").append(getVersion());
+    sb.append(getVersion());
     return sb.toString();
   }
 
-  public boolean isSuccessfulBuild() {
+  public boolean isSuccessfulDryRunBuild() {
+    return isSuccessfulBuild() && isDryRun();
+  }
+
+  public boolean isSuccessfulReleaseBuild() {
+    return isSuccessfulBuild() && !isDryRun();
+  }
+
+  private boolean isSuccessfulBuild() {
     if (this.run != null) {
       Result result = this.run.getResult();
       if (result != null) {
@@ -100,7 +124,15 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     return false;
   }
 
-  public boolean isUnstableBuild() {
+  public boolean isUnstableDryRunBuild() {
+    return isUnstableBuild() && isDryRun();
+  }
+
+  public boolean isUnstableReleaseBuild() {
+    return isUnstableBuild() && !isDryRun();
+  }
+
+  private boolean isUnstableBuild() {
     if (this.run != null) {
       Result result = this.run.getResult();
       if (result != null) {
@@ -111,7 +143,10 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
   }
 
   public boolean isBuilding() {
-    return this.run.isBuilding();
+    if (this.run != null) {
+      return this.run.isBuilding();
+    }
+    return false;
   }
 
   public String getVersion() {
@@ -120,17 +155,27 @@ public class UnleashBadgeAction implements BuildBadgeAction, RunAction2 {
     }
 
     // backwards compatibility to older builds where the badge action doesn't yet carry the version attribute
-    UnleashArgumentsAction args = this.run.getAction(UnleashArgumentsAction.class);
-    if (args != null) {
-      return args.getGlobalReleaseVersion();
+    if (this.run != null) {
+      UnleashArgumentsAction args = this.run.getAction(UnleashArgumentsAction.class);
+      if (args != null) {
+        return args.getGlobalReleaseVersion();
+      }
     }
 
-    return "Unknown Version";
+    return UNKNWON_VERSION;
   }
 
   public void setVersion(String version) {
     if (!Strings.isNullOrEmpty(version)) {
       this.version = version;
     }
+  }
+
+  public boolean isDryRun() {
+    return this.isDryRun;
+  }
+
+  public void setDryRun(boolean isDryRun) {
+    this.isDryRun = isDryRun;
   }
 }

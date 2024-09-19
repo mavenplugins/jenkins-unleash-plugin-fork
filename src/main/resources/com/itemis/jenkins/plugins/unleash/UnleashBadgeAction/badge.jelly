@@ -1,7 +1,10 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
     <j:choose>
-        <j:when test="${it.isSuccessfulBuild()}">
+        <j:when test="${it.isSuccessfulDryRunBuild()}">
+            <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-dryrun.png"/>
+        </j:when>
+        <j:when test="${it.isSuccessfulReleaseBuild()}">
             <img width="16" height="16" title="${it.tooltipText}" src="${rootURL}/plugin/unleash/img/badge-success.png"/>
         </j:when>
         <j:when test="${it.isFailedBuild()}">
