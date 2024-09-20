@@ -30,7 +30,8 @@ permissions:
 
 jobs:
   maven-cd:
-    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v1
+    #uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v1
+    uses: mhoffrog/jenkins-infra.github-reusable-workflows/.github/workflows/maven-cd.yml@feature/maven_cd__input_validate_only
     with:
       # Comment / uncomment the validate_only config appropriate to your preference:
       #
