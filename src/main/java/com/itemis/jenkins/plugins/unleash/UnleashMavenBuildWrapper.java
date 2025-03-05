@@ -29,7 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.model.Model;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -45,12 +46,9 @@ import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
-import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.itemis.jenkins.plugins.unleash.util.BuildUtil;
 import com.itemis.jenkins.plugins.unleash.util.MavenUtil;
 import com.itemis.maven.plugins.unleash.util.MavenVersionUtil;
@@ -65,8 +63,8 @@ import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Item;
-import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
+import hudson.model.Run;
 import hudson.model.queue.Tasks;
 import hudson.security.ACL;
 import hudson.tasks.BuildWrapper;
@@ -151,82 +149,27 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       };
     }
 
-    UnleashArgumentsAction arguments = build.getAction(UnleashArgumentsAction.class);
-    StringBuilder command = new StringBuilder(getGoals());
+    UnleashScmCredentialArguments scmCredentialArguments = createScmCredentialArguments(build);
+    UnleashArgumentsAction argumentsAction = build.getAction(UnleashArgumentsAction.class);
 
-    if (StringUtils.isNotBlank(this.workflowPath)) {
-      // TODO handle absolute and relative paths!
-      command.append(" -Dworkflow=").append(this.workflowPath);
-    }
+    final Pair<Map<String, String>, StringBuilder> p = BuildUtil.buildScmEnvAndUnleashCommandOptions( // nl
+        build.getAction(ParametersAction.class), // nl
+        getGoals(), // nl
+        this.workflowPath, // nl
+        getProfiles(), // nl
+        getReleaseArgs(), // nl
+        isUseLogTimestamps(), // nl
+        this.hooks, // nl
+        getTagNamePattern(), // nl
+        getScmMessagePrefix(), // nl
+        getVersionUpgradeStrategy(), // nl
+        argumentsAction, // nl
+        scmCredentialArguments // nl
+    );
+    final Map<String, String> scmEnv = p.getLeft();
+    final StringBuilder commandOptions = p.getRight();
 
-    // appends the profiles to the Maven call
-    if (StringUtils.isNotBlank(getProfiles())) {
-      Iterable<String> split = Splitter.on(',').split(getProfiles());
-      List<String> profiles = Lists.newArrayList();
-      for (String profile : split) {
-        if (StringUtils.isNotBlank(profile)) {
-          profile = profile.trim();
-          if (StringUtils.startsWith(profile, "-")) {
-            profile = StringUtils.replaceOnce(profile, "-", "!");
-          }
-          profiles.add(profile);
-        }
-      }
-      if (profiles.size() > 0) {
-        String listedProfiles = Joiner.on(',').join(profiles);
-        command.append(" -P ").append(listedProfiles);
-        command.append(" -Dunleash.profiles=").append(listedProfiles);
-      }
-    }
-
-    if (StringUtils.isNotBlank(getReleaseArgs())) {
-      command.append(" -Dunleash.releaseArgs=\"").append(getReleaseArgs().trim()).append("\"");
-    }
-    command.append(" -DenableLogTimestamps=").append(isUseLogTimestamps());
-
-    if (this.hooks != null) {
-      for (HookDescriptor hookData : this.hooks) {
-        if (StringUtils.isNotBlank(hookData.getName()) && StringUtils.isNotBlank(hookData.getData())) {
-          command.append(" -D").append(hookData.getName()).append("=\"").append(hookData.getData()).append("\"");
-          if (StringUtils.isNotBlank(hookData.getRollbackData())) {
-            command.append(" -D").append(hookData.getName()).append("-rollback=\"").append(hookData.getRollbackData())
-                .append("\"");
-          }
-        }
-      }
-    }
-
-    String tagNamePattern = getTagNamePattern();
-    String scmMessagePrefix = getScmMessagePrefix();
-    String releaseVersion = null;
-    if (arguments != null) {
-      tagNamePattern = arguments.getTagNamePattern();
-      scmMessagePrefix = arguments.getScmMessagePrefix();
-      releaseVersion = arguments.getGlobalReleaseVersion();
-      if (arguments.useGlobalReleaseVersion()) {
-        command.append(" -Dunleash.releaseVersion=").append(releaseVersion);
-        command.append(" -Dunleash.developmentVersion=").append(arguments.getGlobalDevelopmentVersion());
-      } else {
-        command.append(" -Dunleash.versionUpgradeStrategy=").append(getVersionUpgradeStrategy().name());
-      }
-      command.append(" -Dunleash.allowLocalReleaseArtifacts=").append(arguments.allowLocalReleaseArtifacts());
-      command.append(" -Dunleash.commitBeforeTagging=").append(arguments.commitBeforeTagging());
-      if (arguments.errorLog()) {
-        command.append(" -e");
-      }
-      if (arguments.debugLog()) {
-        command.append(" -X");
-      }
-    }
-    if (StringUtils.isNotBlank(tagNamePattern)) {
-      command.append(" -Dunleash.tagNamePattern=\"").append(tagNamePattern.trim()).append("\"");
-    }
-    if (StringUtils.isNotBlank(scmMessagePrefix)) {
-      command.append(" -Dunleash.scmMessagePrefix=\"").append(scmMessagePrefix.trim()).append("\"");
-    }
-
-    final Map<String, String> scmEnv = updateCommandWithScmCredentials(build, command);
-    replaceJobParameterReferences(build, command);
+    String releaseVersion = argumentsAction != null ? argumentsAction.getGlobalReleaseVersion() : null;
 
     if (releaseVersion == null) {
       MavenModuleSet project = (MavenModuleSet) build.getProject();
@@ -240,77 +183,44 @@ public class UnleashMavenBuildWrapper extends BuildWrapper {
       }
       releaseVersion = MavenVersionUtil.calculateReleaseVersion(version);
     }
-    build.addAction(new UnleashArgumentInterceptorAction(command.toString()));
+    build.addAction(new UnleashArgumentInterceptorAction(commandOptions.toString()));
     build.addAction(new UnleashBadgeAction(releaseVersion));
 
     return new UnleashEnvironment(scmEnv);
   }
 
-  private Map<String, String> updateCommandWithScmCredentials(@SuppressWarnings("rawtypes") AbstractBuild build,
-      StringBuilder command) {
-    String scmUsername = null;
-    String scmPassword = null;
-    String scmSshPassphrase = null;
-    String scmSshPrivateKey = null;
+  private UnleashScmCredentialArguments createScmCredentialArguments(
+      @SuppressWarnings("rawtypes") AbstractBuild build) {
+    UnleashScmCredentialArguments ret = new UnleashScmCredentialArguments();
     if (StringUtils.isNotBlank(this.credentialsId)) {
       StandardUsernameCredentials credentials = CredentialsProvider.findCredentialById(this.credentialsId,
           StandardUsernameCredentials.class, build, URIRequirementBuilder.create().build());
       if (credentials instanceof StandardUsernamePasswordCredentials) {
         StandardUsernamePasswordCredentials c = (StandardUsernamePasswordCredentials) credentials;
-        scmUsername = c.getUsername();
-        scmPassword = c.getPassword().getPlainText();
+
+        ret.setUseSshCredentials(false);
+        ret.setUserNameOrSshPrivateKey(c.getUsername());
+        ret.setPassphrase(c.getPassword().getPlainText());
+        ret.setUserNameOrSshPrivateKeyEnvVar(ENV_VAR_SCM_USERNAME);
+        ret.setPassphraseEnvVar(ENV_VAR_SCM_PASSWORD);
       } else if (credentials instanceof SSHUserPrivateKey) {
         SSHUserPrivateKey c = (SSHUserPrivateKey) credentials;
         Secret passphrase = c.getPassphrase();
-        scmSshPassphrase = passphrase != null ? passphrase.getPlainText() : null;
+        String scmSshPassphrase = passphrase != null ? passphrase.getPlainText() : null;
         final List<String> privKeys = c.getPrivateKeys();
-        scmSshPrivateKey = privKeys.isEmpty() ? "" : privKeys.get(0);
+        String scmSshPrivateKey = privKeys.isEmpty() ? "" : privKeys.get(0);
+
+        ret.setUseSshCredentials(true);
+        ret.setUserNameOrSshPrivateKey(scmSshPrivateKey);
+        ret.setUserNameOrSshPrivateKeyEnvVar(ENV_VAR_SCM_SSH_PRIVATE_KEY);
+        ret.setPassphrase(scmSshPassphrase);
+        ret.setPassphraseEnvVar(ENV_VAR_SCM_SSH_PASSPHRASE);
       }
     }
-
-    final Map<String, String> scmEnv = Maps.newHashMap();
-    if (scmUsername != null) {
-      command.append(" -Dunleash.scmUsernameEnvVar=" + ENV_VAR_SCM_USERNAME);
-      scmEnv.put(ENV_VAR_SCM_USERNAME, scmUsername);
-    }
-    if (scmPassword != null) {
-      command.append(" -Dunleash.scmPasswordEnvVar=" + ENV_VAR_SCM_PASSWORD);
-      scmEnv.put(ENV_VAR_SCM_PASSWORD, scmPassword);
-    }
-    if (scmSshPassphrase != null) {
-      command.append(" -Dunleash.scmSshPassphraseEnvVar=" + ENV_VAR_SCM_SSH_PASSPHRASE);
-      scmEnv.put(ENV_VAR_SCM_SSH_PASSPHRASE, scmSshPassphrase);
-    }
-    if (scmSshPrivateKey != null) {
-      command.append(" -Dunleash.scmSshPrivateKeyEnvVar=" + ENV_VAR_SCM_SSH_PRIVATE_KEY);
-      scmEnv.put(ENV_VAR_SCM_SSH_PRIVATE_KEY, scmSshPrivateKey);
-    }
-    return scmEnv;
+    return ret;
   }
 
-  private void replaceJobParameterReferences(@SuppressWarnings("rawtypes") AbstractBuild build, StringBuilder command) {
-    if (command != null) {
-      ParametersAction action = build.getAction(ParametersAction.class);
-      if (action != null) {
-        int start = command.indexOf("${");
-        while (start >= 0) {
-          int end = command.indexOf("}", start);
-          String name = command.substring(start + 2, end);
-          ParameterValue paramValue = action.getParameter(name);
-          if (paramValue != null) {
-            Object value = paramValue.getValue();
-            if (value != null) {
-              command.replace(start, end + 1, value.toString());
-            }
-          }
-          start = command.indexOf("${", end);
-        }
-      }
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private boolean isReleaseBuild(@SuppressWarnings("rawtypes") AbstractBuild build) {
+  private boolean isReleaseBuild(Run<?, ?> build) {
     return build.getCause(UnleashCause.class) != null;
   }
 

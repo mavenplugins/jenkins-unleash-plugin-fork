@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The MIT License
+
+ Copyright (c) 2024, Unleash Plugin Authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry field="goal" title="Maven goal. e.g.: 'unleash:perform' or 'unleash:perform-tycho'">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="releaseVersion" title="Release version">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="nextDevelopmentVersion" title="Next development (-SNAPSHOT) version">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="commitBeforeTagging" title="Commit before tagging">
+        <f:checkbox/>
+    </f:entry>
+    <f:entry field="allowLocalReleaseArtifacts" title="Allow local release artifacts">
+        <f:checkbox/>
+    </f:entry>
+    <f:entry field="useLogTimestamps" title="Use log timestamps">
+        <f:checkbox/>
+    </f:entry>
+    <f:entry field="scmTagNamePattern" title="SCM tag name pattern">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmMessagePrefix" title="SCM message prefix">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmUsername" title="SCM user name">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmPassword" title="SCM password">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmUsernameEnvVar" title="Name of env variable holding the SCM user name">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmPasswordEnvVar" title="Name of env variable holding the SCM password">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmSshPassphrase" title="SCM SSH passphrase">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmSshPassphraseEnvVar" title="Name of env variable holding the SCM SSH passphrase">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="scmSshPrivateKeyEnvVar" title="Name of env variable holding the SCM SSH private key">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="releaseArgs" title="Additional release args">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="mavenProfiles" title="Maven profiles to enable/disable">
+        <f:textbox/>
+    </f:entry>
+    <f:advanced>
+      <f:entry field="workflowFilePath" title="Workflow file to be used">
+          <f:textbox/>
+      </f:entry>
+      <f:entry title="Hook Data" help="/plugin/unleash/help-projectConfig-hook.html">
+        <f:repeatable var="hooks" items="${instance.hooks}">
+          <table>
+            <f:entry title="Name" help="/plugin/unleash/help-projectConfig-hookName.html">
+              <f:textbox name="hook.name" value="${hooks.name}" />
+            </f:entry>
+            <f:entry title="Data" help="/plugin/unleash/help-projectConfig-hookData.html">
+              <f:expandableTextbox name="hook.data" value="${hooks.data}" />
+            </f:entry>
+            <f:entry title="Rollback Data" help="/plugin/unleash/help-projectConfig-hookRollbackData.html">
+              <f:expandableTextbox name="hook.rollbackData" value="${hooks.rollbackData}" />
+            </f:entry>
+            <f:entry title="">
+              <div align="right">
+                <f:repeatableDeleteButton />
+              </div>
+            </f:entry>
+        </table>
+      </f:repeatable>
+    </f:entry>
+    </f:advanced>
+    <f:entry field="errorLog" title="Enable error log">
+        <f:checkbox/>
+    </f:entry>
+    <f:entry field="debugLog" title="Enable debug log">
+        <f:checkbox/>
+    </f:entry>
+</j:jelly>

@@ -21,52 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.itemis.jenkins.plugins.unleash;
+package com.itemis.jenkins.plugins.unleash.dsl;
 
-import org.kohsuke.stapler.DataBoundConstructor;
+import java.util.HashSet;
+import java.util.Set;
 
-public class HookDescriptor {
-  String name;
-  String data;
-  String rollbackData;
+import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 
-  public HookDescriptor() {
-  }
+import hudson.model.TaskListener;
 
-  @DataBoundConstructor
-  public HookDescriptor(String name, String data, String rollbackData) {
-    this.name = name != null ? name.trim() : "";
-    this.data = data != null ? data.trim() : "";
-    this.rollbackData = rollbackData != null ? rollbackData.trim() : "";
-  }
-
-  public String getName() {
-    return this.name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getData() {
-    return this.data;
-  }
-
-  public void setData(String data) {
-    this.data = data;
-  }
-
-  public String getRollbackData() {
-    return this.rollbackData;
-  }
-
-  public void setRollbackData(String rollbackData) {
-    this.rollbackData = rollbackData;
-  }
+abstract class AbstractTaskListenerDescriptor extends StepDescriptor {
 
   @Override
-  public String toString() {
-    return "name: '" + getName() + "', data: '" + getData() + "', rollbackData: '" + getRollbackData() + "'";
+  public Set<Class<?>> getRequiredContext() {
+    Set<Class<?>> set = new HashSet<>();
+    set.add(TaskListener.class);
+    return set;
   }
 
 }
